@@ -1,0 +1,7 @@
+* text=auto
+*.sh text eol=lf
+*.patch -text
+firmware/Dockerfile text eol=lf
+firmware/VERSION text eol=lf
+*.png binary
+*.ico binary
