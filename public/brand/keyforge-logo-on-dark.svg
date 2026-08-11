@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 180" role="img" aria-labelledby="t">
+  <title id="t">Keyforge</title>
+  <defs>
+    <linearGradient id="kf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14ffec"/>
+      <stop offset=".55" stop-color="#00c9c7"/>
+      <stop offset="1" stop-color="#0d7377"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#kf)" fill-rule="evenodd" d="M28 0H92L110 18V54L92 72H60V100H97V124H60V138H89V160H60V172Q60 180 52 180H41Q33 180 33 172V72H28L10 54V18ZM74 36A14 14 0 1 0 46 36A14 14 0 1 0 74 36Z"/>
+  <!-- Wordmark uses live text; outline it in a vector editor before print use. -->
+  <text x="140" y="118" fill="#f2f5f5" font-family="Geist, 'Segoe UI', Inter, system-ui, sans-serif" font-size="92" font-weight="600" letter-spacing="-3">keyforge</text>
+</svg>

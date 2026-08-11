@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 180" role="img" aria-labelledby="t">
+  <title id="t">Keyforge</title>
+  <defs>
+    <path id="k" fill-rule="evenodd" d="M28 0H92L110 18V54L92 72H60V100H97V124H60V138H89V160H60V172Q60 180 52 180H41Q33 180 33 172V72H28L10 54V18ZM74 36A14 14 0 1 0 46 36A14 14 0 1 0 74 36Z"/>
+    <radialGradient id="a" cx="60" cy="70" r="120" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1 0 0 .85 0 10)">
+      <stop offset="0" stop-color="#0d7377"/>
+      <stop offset="1" stop-color="#0d7377" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="b" cx="112" cy="4" r="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#14ffec"/>
+      <stop offset=".36" stop-color="#00c9c7"/>
+      <stop offset="1" stop-color="#0d7377" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="c" cx="8" cy="176" r="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#14ffec"/>
+      <stop offset=".34" stop-color="#00c9c7"/>
+      <stop offset="1" stop-color="#0d7377" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <use href="#k" fill="#0b5f62"/>
+  <use href="#k" fill="url(#a)"/>
+  <use href="#k" fill="url(#b)"/>
+  <use href="#k" fill="url(#c)"/>
+</svg>

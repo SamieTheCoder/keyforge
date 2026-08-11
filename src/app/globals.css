@@ -1,0 +1,269 @@
+@import 'tailwindcss';
+
+/*
+ * Keyforge design tokens.
+ * One accent family: the brand teal mesh (#14ffec -> #00c9c7 -> #0d7377).
+ * Danger red is reserved for irreversible actions (secure boot).
+ * Radius rule: panels 16px, controls 10px, pills full.
+ * Theme: dark by default; [data-theme='light'] or prefers-color-scheme: light.
+ */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  --bg: #121414;
+  --bg-raised: #191c1c;
+  --panel: rgb(28 32 32 / 72%);
+  --panel-solid: #1c2020;
+  --sunken: #0f1111;
+  --line: #2a3030;
+  --line-strong: #3a4242;
+  --text: #ecf2f1;
+  --muted: #9aa7a5;
+  --faint: #6b7776;
+  --accent: #14ffec;
+  --accent-2: #00c9c7;
+  --accent-3: #0d7377;
+  --accent-ink: #032a29;
+  --accent-soft: rgb(0 201 199 / 12%);
+  --accent-line: rgb(0 201 199 / 38%);
+  --danger: #ff7a70;
+  --danger-soft: rgb(255 122 112 / 10%);
+  --warn: #f2c25b;
+  --warn-soft: rgb(242 194 91 / 10%);
+  --ok: #3ee0a3;
+  --grid: rgb(20 255 236 / 5%);
+  --grid-bold: rgb(20 255 236 / 9%);
+  --shadow: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 60px -24px rgb(0 0 0 / 60%);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --bg: #f3f6f6;
+    --bg-raised: #ffffff;
+    --panel: rgb(255 255 255 / 80%);
+    --panel-solid: #ffffff;
+    --sunken: #eaf0ef;
+    --line: #d5dedd;
+    --line-strong: #b9c6c4;
+    --text: #172020;
+    --muted: #4e5c5a;
+    --faint: #6e7c7a;
+    --accent: #0a8f8c;
+    --accent-2: #0b7f7d;
+    --accent-3: #0d7377;
+    --accent-ink: #ffffff;
+    --accent-soft: rgb(13 115 119 / 9%);
+    --accent-line: rgb(13 115 119 / 35%);
+    --danger: #b42318;
+    --danger-soft: rgb(180 35 24 / 7%);
+    --warn: #8a5300;
+    --warn-soft: rgb(138 83 0 / 8%);
+    --ok: #0f7a52;
+    --grid: rgb(13 115 119 / 6%);
+    --grid-bold: rgb(13 115 119 / 11%);
+    --shadow: 0 1px 2px rgb(20 40 40 / 6%), 0 18px 40px -20px rgb(20 40 40 / 18%);
+    color-scheme: light;
+  }
+}
+
+:root[data-theme='light'] {
+  --bg: #f3f6f6;
+  --bg-raised: #ffffff;
+  --panel: rgb(255 255 255 / 80%);
+  --panel-solid: #ffffff;
+  --sunken: #eaf0ef;
+  --line: #d5dedd;
+  --line-strong: #b9c6c4;
+  --text: #172020;
+  --muted: #4e5c5a;
+  --faint: #6e7c7a;
+  --accent: #0a8f8c;
+  --accent-2: #0b7f7d;
+  --accent-3: #0d7377;
+  --accent-ink: #ffffff;
+  --accent-soft: rgb(13 115 119 / 9%);
+  --accent-line: rgb(13 115 119 / 35%);
+  --danger: #b42318;
+  --danger-soft: rgb(180 35 24 / 7%);
+  --warn: #8a5300;
+  --warn-soft: rgb(138 83 0 / 8%);
+  --ok: #0f7a52;
+  --grid: rgb(13 115 119 / 6%);
+  --grid-bold: rgb(13 115 119 / 11%);
+  --shadow: 0 1px 2px rgb(20 40 40 / 6%), 0 18px 40px -20px rgb(20 40 40 / 18%);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-raised: var(--bg-raised);
+  --color-panel: var(--panel);
+  --color-panel-solid: var(--panel-solid);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-accent-3: var(--accent-3);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-geist-sans), 'Segoe UI', system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), 'Cascadia Mono', ui-monospace, monospace;
+  --radius-panel: 16px;
+  --radius-ctl: 10px;
+  --shadow-panel: var(--shadow);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+  }
+  body {
+    min-height: 100dvh;
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--text);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* Blueprint grid: 24px cells, stronger line every 96px, fades out downward. */
+.bg-grid {
+  background-image:
+    linear-gradient(var(--grid-bold) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-bold) 1px, transparent 1px),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:
+    96px 96px,
+    96px 96px,
+    24px 24px,
+    24px 24px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 110% 80% at 50% 0%, #000 30%, transparent 100%);
+}
+
+/* Brand mesh wash: the three radial stops from the logo artwork. */
+.bg-mesh {
+  background:
+    radial-gradient(40% 55% at 92% 0%, rgb(20 255 236 / 18%), transparent 70%),
+    radial-gradient(45% 60% at 4% 100%, rgb(0 201 199 / 14%), transparent 70%),
+    radial-gradient(60% 60% at 35% 20%, rgb(13 115 119 / 22%), transparent 70%);
+}
+
+.text-mesh {
+  background: linear-gradient(110deg, var(--accent) 0%, var(--accent-2) 45%, var(--accent-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .panel {
+    background: var(--panel-solid);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Hairline figures (@lucasmarkes/hairline) drawn in the Keyforge palette, in both themes.
+   The plate colour must match what the figure sits on, so set --figure-plate on the container. */
+.figure {
+  --hairline-plate: var(--figure-plate, var(--panel-solid));
+  --hairline-hi: var(--accent);
+  --hairline-edge: var(--muted);
+  --hairline-mid: var(--line-strong);
+  --hairline-lo: var(--line);
+  --hairline-stroke: 1;
+}
+
+/* Entry animation used by data-reveal; disabled under reduced motion. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise-in 0.7s var(--ease-out-expo) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+}
+
+/* Native form controls themed once. */
+.field-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: var(--radius-ctl);
+  border: 1px solid var(--line-strong);
+  background: var(--sunken);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.92rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.field-input:hover:not(:disabled) {
+  border-color: var(--muted);
+}
+.field-input:focus-visible {
+  outline: none;
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.field-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.field-input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+input[type='checkbox'],
+input[type='radio'],
+input[type='range'] {
+  accent-color: var(--accent-2);
+}
+
+.term {
+  background:
+    linear-gradient(rgb(255 255 255 / 2.5%) 1px, transparent 1px) 0 0 / 100% 20px,
+    #090b0b;
+  color: #d4e3e0;
+  font:
+    12.5px/20px var(--font-mono);
+}
