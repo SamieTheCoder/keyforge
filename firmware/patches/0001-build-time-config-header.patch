@@ -1,0 +1,24 @@
+diff --git a/src/fido/fido.h b/src/fido/fido.h
+index 8bd0efb..a53817b 100644
+--- a/src/fido/fido.h
++++ b/src/fido/fido.h
+@@ -106,7 +106,19 @@ extern uint8_t get_opts(void);
+ extern void set_opts(uint8_t);
+ #define MAX_CREDENTIAL_COUNT_IN_LIST 16
+ #define MAX_CRED_ID_LENGTH        1024
++/* Keyforge: optional build-time overrides, written by firmware/build.sh. */
++#if defined(__has_include)
++#if __has_include("keyforge_config.h")
++#include "keyforge_config.h"
++#endif
++#endif
++#ifndef MAX_RESIDENT_CREDENTIALS
+ #define MAX_RESIDENT_CREDENTIALS  256
++#endif
++/* Passkeys live in files 0xCF00-0xCFFF and sites in 0xD000-0xD0FF, so 256 is a hard ceiling. */
++#if MAX_RESIDENT_CREDENTIALS < 1 || MAX_RESIDENT_CREDENTIALS > 256
++#error "MAX_RESIDENT_CREDENTIALS must be between 1 and 256"
++#endif
+ #define MAX_CREDBLOB_LENGTH       128
+ #define MAX_MSG_SIZE              1024
+ #define MAX_PIN_LENGTH            63
