@@ -1,0 +1,73 @@
+# Builds Keyforge firmware from firmware/ (pinned pico-fido submodule + firmware/patches)
+# with the same Docker image anyone can use locally (firmware/Dockerfile).
+#
+#  - Pushes and pull requests that touch firmware/ build every board and upload artifacts.
+#  - "Run workflow" with publish = true also creates the GitHub release fw-<version>,
+#    which keyforge.tech lists as "Keyforge builds".
+#
+# Builds are not signed with the PicoKeys release key (see firmware/NOTICE.md).
+
+name: Firmware
+
+on:
+  push:
+    branches: [main]
+    paths: ['firmware/**', '.github/workflows/firmware.yml']
+  pull_request:
+    paths: ['firmware/**', '.github/workflows/firmware.yml']
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish a GitHub release (fw-<version>)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build all boards
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Build toolchain image
+        run: docker build -t keyforge-fw firmware
+
+      - name: Build firmware
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src -u "$(id -u):$(id -g)" -e HOME=/tmp \
+            keyforge-fw bash -lc '. "$IDF_PATH/export.sh" >/dev/null && firmware/build.sh pico pico2 esp32s3 esp32s2'
+
+      - name: Package source and notice
+        run: |
+          v="$(tr -d ' \r\n' < firmware/VERSION)"
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+          commit="$(git -C firmware/pico-fido rev-parse HEAD)"
+          # Complete corresponding source (AGPL-3.0): this repo's firmware/ dir with all submodules.
+          tar --exclude-vcs --exclude=firmware/dist -czf "firmware/dist/keyforge-fido-${v}-source.tar.gz" firmware
+          sed -e "s/@VERSION@/${v}/g" -e "s/@COMMIT@/${commit}/g" -e "s/@KEYFORGE@/${GITHUB_SHA}/g" \
+              -e "s#@RUN@#${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}#g" \
+              firmware/NOTICE.md > firmware/dist/NOTICE.md
+          (cd firmware/dist && sha256sum keyforge-fido_* keyforge-fido-*-source.tar.gz > SHA256SUMS && cat SHA256SUMS)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: keyforge-firmware
+          path: firmware/dist/*
+          if-no-files-found: error
+
+      - name: Publish release fw-${{ env.VERSION }}
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "fw-${VERSION}" firmware/dist/* \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Keyforge firmware ${VERSION}" --notes-file firmware/dist/NOTICE.md
+    permissions:
+      contents: write
