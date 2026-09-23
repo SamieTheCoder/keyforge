@@ -81,7 +81,7 @@ export function Passkeys() {
             skipStorage.current = true;
             log(
               'info',
-              'Next time you unlock, Keyforge will skip storage info and go straight to the passkey list.'
+              'Next time you unlock, Keyzforge will skip storage info and go straight to the passkey list.'
             );
           }
         } else {
@@ -330,7 +330,7 @@ export function Passkeys() {
             </Notice>
           )}
           <Notice className="mt-5">
-            Works with Keyforge keys whose USB smart-card interface is enabled
+            Works with Keyzforge keys whose USB smart-card interface is enabled
             (the default). It talks to the key the same way the Configure page
             does, so close that page first.
           </Notice>

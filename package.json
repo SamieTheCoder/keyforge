@@ -2,9 +2,9 @@
   "name": "keyforge",
   "version": "0.1.0",
   "private": true,
-  "description": "Keyforge: flash, configure and monitor open-source pico-fido security keys (ESP32-S3, ESP32-S2, RP2040, RP2350) from the browser.",
+  "description": "Keyzforge: flash, configure and monitor open-source pico-fido security keys (ESP32-S3, ESP32-S2, RP2040, RP2350) from the browser.",
   "license": "AGPL-3.0-only",
-  "homepage": "https://keyforge.tech",
+  "homepage": "https://keyzforge.tech",
   "keywords": [
     "pico-fido",
     "fido2",

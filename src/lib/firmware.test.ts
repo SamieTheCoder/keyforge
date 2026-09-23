@@ -152,11 +152,11 @@ test('release asset matching per target', () => {
   assert.deepEqual(matchAssets(releases, 'nope' as 'rp2040'), []);
 });
 
-test('uf2HintFromName handles official, Keyforge and LibreKeys names', () => {
+test('uf2HintFromName handles official, Keyzforge and LibreKeys names', () => {
   assert.equal(uf2HintFromName('pico_fido_pico-8.0.uf2'), 'RP2040');
   assert.equal(uf2HintFromName('pico_fido_pico2-8.0.uf2'), 'RP2350');
-  assert.equal(uf2HintFromName('keyforge-fido_pico-8.0.uf2'), 'RP2040');
-  assert.equal(uf2HintFromName('keyforge-fido_pico2-8.0.uf2'), 'RP2350');
+  assert.equal(uf2HintFromName('keyzforge-fido_pico-8.0.uf2'), 'RP2040');
+  assert.equal(uf2HintFromName('keyzforge-fido_pico2-8.0.uf2'), 'RP2350');
   assert.equal(
     uf2HintFromName('pico-fido2-adafruit_feather_rp2040.uf2'),
     'RP2040'

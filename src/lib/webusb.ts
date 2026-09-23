@@ -120,7 +120,7 @@ export class CcidTransport {
     const itf = findWebCcidInterface(d);
     if (!itf) {
       throw new Error(
-        'This device has no WebCCID interface. Make sure it runs Keyforge firmware and that the WebCCID USB interface is enabled.'
+        'This device has no WebCCID interface. Make sure it runs Keyzforge firmware and that the WebCCID USB interface is enabled.'
       );
     }
     try {

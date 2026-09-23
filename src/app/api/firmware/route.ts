@@ -47,7 +47,7 @@ export async function GET(request: Request) {
   try {
     res = await fetch(upstream, {
       redirect: 'follow',
-      headers: { 'User-Agent': 'keyforge.tech firmware fetch' },
+      headers: { 'User-Agent': 'keyzforge.tech firmware fetch' },
       signal: AbortSignal.timeout(30_000),
     });
   } catch {

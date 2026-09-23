@@ -396,7 +396,7 @@ export const CURVES: readonly BitOption[] = [
 
 export const USB_ITF: readonly BitOption[] = [
   { bit: 0x01, name: 'CCID (smart card)' },
-  { bit: 0x02, name: 'WebCCID (WebUSB, used by Keyforge)' },
+  { bit: 0x02, name: 'WebCCID (WebUSB, used by Keyzforge)' },
   { bit: 0x04, name: 'HID (FIDO and passkeys)' },
   { bit: 0x08, name: 'HID keyboard (OTP typing)' },
   { bit: 0x10, name: 'LWIP (USB network)' },
@@ -895,7 +895,7 @@ export function reviewPhy(
   const prev = before?.usbItf ?? USB_ITF_ALL;
   if (!(itf & USB_ITF_BIT.WCID) && prev & USB_ITF_BIT.WCID) {
     warnings.push(
-      'WebCCID is disabled. Keyforge will no longer reach the key after replug; only a reflash or a CCID tool can undo it.'
+      'WebCCID is disabled. Keyzforge will no longer reach the key after replug; only a reflash or a CCID tool can undo it.'
     );
   }
   if (!(itf & USB_ITF_BIT.HID) && prev & USB_ITF_BIT.HID) {

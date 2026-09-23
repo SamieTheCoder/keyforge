@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="t">
-  <title id="t">Keyforge</title>
+  <title id="t">Keyzforge</title>
   <defs>
     <clipPath id="tile"><rect width="512" height="512" rx="112"/></clipPath>
     <radialGradient id="g1" cx="490" cy="20" r="380" gradientUnits="userSpaceOnUse">

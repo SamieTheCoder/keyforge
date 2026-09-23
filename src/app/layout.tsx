@@ -6,20 +6,20 @@ import { THEME_SCRIPT } from '@/components/theme-toggle';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://keyforge.tech'),
+  metadataBase: new URL('https://keyzforge.tech'),
   title: {
-    default: 'Keyforge: open-source FIDO2 security keys you build yourself',
-    template: '%s | Keyforge',
+    default: 'Keyzforge: open-source FIDO2 security keys you build yourself',
+    template: '%s | Keyzforge',
   },
   description:
     'Flash, configure and monitor open-source FIDO2 security keys on ESP32-S3, RP2040 and RP2350, straight from the browser.',
-  applicationName: 'Keyforge',
+  applicationName: 'Keyzforge',
   openGraph: {
-    title: 'Keyforge',
+    title: 'Keyzforge',
     description:
       'Flash, configure and monitor open-source FIDO2 security keys from the browser.',
-    url: 'https://keyforge.tech',
-    siteName: 'Keyforge',
+    url: 'https://keyzforge.tech',
+    siteName: 'Keyzforge',
     type: 'website',
   },
 };
@@ -43,7 +43,10 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="relative flex min-h-dvh flex-col">
+      <body
+        className="relative flex min-h-dvh flex-col"
+        suppressHydrationWarning
+      >
         <div
           aria-hidden
           className="bg-mesh pointer-events-none fixed inset-x-0 top-0 -z-10 h-[720px] [mask-image:linear-gradient(to_bottom,#000_40%,transparent)]"

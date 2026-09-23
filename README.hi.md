@@ -1,22 +1,22 @@
 <div align="center">
 
-<img src="public/brand/keyforge-logo-on-light.svg" alt="Keyforge" height="56">
+<img src="public/brand/keyforge-logo-on-light.svg" alt="Keyzforge" height="56">
 
 ### ₹500 का बोर्ड, एक ब्राउज़र टैब, और आपकी अपनी FIDO2 सिक्योरिटी की।
 
-[English](README.md) · [keyforge.tech](https://keyforge.tech) · [योगदान करें](CONTRIBUTING.md)
+[English](README.md) · [keyzforge.tech](https://keyzforge.tech) · [योगदान करें](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## Keyforge क्या है?
+## Keyzforge क्या है?
 
-Keyforge एक ओपन-सोर्स प्रोजेक्ट है जो सस्ते ESP32 या Raspberry Pi Pico बोर्ड को **FIDO2 / पासकी सिक्योरिटी की** में बदल देता है।
+Keyzforge एक ओपन-सोर्स प्रोजेक्ट है जो सस्ते ESP32 या Raspberry Pi Pico बोर्ड को **FIDO2 / पासकी सिक्योरिटी की** में बदल देता है।
 सब कुछ ब्राउज़र में होता है: कोई सॉफ़्टवेयर इंस्टॉल नहीं, कोई ड्राइवर नहीं, कोई अकाउंट नहीं।
 
 भारत में ब्रांडेड सिक्योरिटी की ₹2,500 से ₹7,000 तक की आती है। वही सुरक्षा (फ़िशिंग से बचाने वाली पासकी, PIN, OATH और OTP)
-₹300 से ₹700 के बोर्ड पर चल सकती है। Keyforge का मकसद है कि हर छात्र, कॉलेज, छोटी टीम और आम इंसान अपनी की खुद बना सके,
+₹300 से ₹700 के बोर्ड पर चल सकती है। Keyzforge का मकसद है कि हर छात्र, कॉलेज, छोटी टीम और आम इंसान अपनी की खुद बना सके,
 देख सके कि उस पर क्या चल रहा है, और उसे बदल सके।
 
 ## यह क्या करता है
@@ -42,9 +42,9 @@ Keyforge एक ओपन-सोर्स प्रोजेक्ट है ज
 
 ## शुरू कैसे करें
 
-1. [keyforge.tech/flash](https://keyforge.tech/flash) खोलें।
+1. [keyzforge.tech/flash](https://keyzforge.tech/flash) खोलें।
 2. बोर्ड का **BOOT** बटन दबाकर उसे USB में लगाएँ।
-3. अपनी चिप चुनें, **Keyforge firmware** चुनें, और **Flash firmware** दबाएँ।
+3. अपनी चिप चुनें, **Keyzforge firmware** चुनें, और **Flash firmware** दबाएँ।
 4. **Configure** में LED सेट करें, फिर **Passkeys** में PIN सेट करें।
 5. अपने अकाउंट (Google, GitHub, Microsoft आदि) में इसे पासकी या सिक्योरिटी की की तरह जोड़ें।
 
@@ -61,7 +61,7 @@ Keyforge एक ओपन-सोर्स प्रोजेक्ट है ज
 
 ## लाइसेंस
 
-Keyforge फ़्री सॉफ़्टवेयर है, [GNU AGPL-3.0](LICENSE) के तहत। फ़र्मवेयर ओपन-सोर्स pico-fido कोड बेस (AGPL-3.0, Pol Henarejos)
+Keyzforge फ़्री सॉफ़्टवेयर है, [GNU AGPL-3.0](LICENSE) के तहत। फ़र्मवेयर ओपन-सोर्स pico-fido कोड बेस (AGPL-3.0, Pol Henarejos)
 पर आधारित है। पूरी जानकारी [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) में है।
 
-Keyforge एक स्वतंत्र प्रोजेक्ट है। Espressif, Raspberry Pi या FIDO Alliance से इसका कोई संबंध नहीं है।
+Keyzforge एक स्वतंत्र प्रोजेक्ट है। Espressif, Raspberry Pi या FIDO Alliance से इसका कोई संबंध नहीं है।

@@ -68,7 +68,7 @@ export function Logo({ className }: { className?: string }) {
     <span className={cn('inline-flex items-center gap-2.5', className)}>
       <KeyMark className="h-7 w-auto" />
       <span className="text-[17px] font-semibold tracking-[-0.03em]">
-        keyforge
+        key<span className="text-accent">z</span>forge
       </span>
     </span>
   );

@@ -25,7 +25,7 @@ export function SiteHeader() {
   return (
     <header className="border-line sticky top-0 z-30 border-b bg-[color-mix(in_srgb,var(--bg)_78%,transparent)] backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Link href="/" className="rounded-[10px]" aria-label="Keyforge home">
+        <Link href="/" className="rounded-[10px]" aria-label="Keyzforge home">
           <Logo />
         </Link>
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">

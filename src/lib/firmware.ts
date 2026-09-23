@@ -416,7 +416,7 @@ export interface FirmwareSource {
 export const FIRMWARE_SOURCES: readonly FirmwareSource[] = [
   {
     repo: SITE.firmwareRepo,
-    name: 'Keyforge firmware (recommended)',
+    name: 'Keyzforge firmware (recommended)',
     home: `https://github.com/${SITE.firmwareRepo}/releases`,
     upstreamSigned: false,
   },
@@ -456,7 +456,7 @@ export function uf2HintFromName(name: string): 'RP2040' | 'RP2350' | null {
   const n = name.toLowerCase();
   if (/rp2040|qt2040|kb2040/.test(n)) return 'RP2040';
   if (/rp2350|pico2(?!\d)/.test(n)) return 'RP2350';
-  // Official and Keyforge names: <project>_pico-8.0.uf2 / <project>_pico_w-8.0.uf2
+  // Official and Keyzforge names: <project>_pico-8.0.uf2 / <project>_pico_w-8.0.uf2
   if (/[_-]pico(_w)?[-_.]\d/.test(n)) return 'RP2040';
   return null;
 }

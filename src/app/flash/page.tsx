@@ -5,7 +5,7 @@ import { PageIntro } from '@/components/log';
 export const metadata: Metadata = {
   title: 'Flash firmware',
   description:
-    'Flash Keyforge firmware onto ESP32-S3, ESP32-S2, RP2040 and RP2350 boards from the browser.',
+    'Flash Keyzforge firmware onto ESP32-S3, ESP32-S2, RP2040 and RP2350 boards from the browser.',
 };
 
 export default function FlashPage() {

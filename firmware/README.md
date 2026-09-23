@@ -1,17 +1,17 @@
-# Keyforge firmware
+# Keyzforge firmware
 
-The FIDO2 firmware that runs on every Keyforge key, built in the open from this directory. Nothing is hidden: the exact
+The FIDO2 firmware that runs on every Keyzforge key, built in the open from this directory. Nothing is hidden: the exact
 source, the patches, the toolchain image and the CI that publishes each release all live here. Fork it and build your own key.
 
 It is based on the open-source [pico-fido](https://github.com/polhenarejos/pico-fido) code base by Pol Henarejos (AGPL-3.0),
-pinned as a submodule, with Keyforge changes kept as small, reviewable patches.
+pinned as a submodule, with Keyzforge changes kept as small, reviewable patches.
 
 ```
 firmware/
 ├── pico-fido/      upstream source, pinned git submodule (v8.0, includes pico-keys-sdk)
-├── patches/        Keyforge changes, applied in order at build time
+├── patches/        Keyzforge changes, applied in order at build time
 │   ├── 0001-build-time-config-header.patch   build options (passkey slots, ...)
-│   └── 0002-usb-strings-keyforge.patch       USB name: Keyforge / Keyforge Key
+│   └── 0002-usb-strings-keyforge.patch       USB name: Keyzforge / Keyzforge Key
 ├── build.sh        one script for every board, used by CI and by you
 ├── Dockerfile      ESP-IDF 5.5.1 + Arm GCC + pico-sdk 2.1.1 + picotool
 ├── VERSION         label for release file names
@@ -40,7 +40,7 @@ for RP boards, then run `firmware/build.sh <board>`.
 | any pico-sdk board, e.g. `waveshare_rp2040_zero`, `adafruit_qtpy_rp2040` | UF2 for that board's pinout and flash size |
 | `esp32s3`, `esp32s2` | merged image, flash at 0x0 |
 
-Flash the result at [keyforge.tech/flash](https://keyforge.tech/flash) with "Or use a local file".
+Flash the result at [keyzforge.tech/flash](https://keyzforge.tech/flash) with "Or use a local file".
 
 ## Customise it
 
@@ -50,7 +50,7 @@ Options are environment variables for `build.sh`:
 | --- | --- | --- |
 | `MAX_RESIDENT_CREDENTIALS` | 256 | Passkey slots. 256 is the ceiling: passkeys use file IDs 0xCF00 to 0xCFFF. |
 | `ENABLE_OATH_APP` | 1 | TOTP/HOTP applet. |
-| `ENABLE_OTP_APP` | 1 | Yubico-style OTP slots. Keyforge's Configure and Passkeys pages need OATH or OTP on, because together they switch on the USB smart-card interface. |
+| `ENABLE_OTP_APP` | 1 | Yubico-style OTP slots. Keyzforge's Configure and Passkeys pages need OATH or OTP on, because together they switch on the USB smart-card interface. |
 | `ENABLE_POWER_ON_RESET` | upstream | Power-cycle behaviour on reset. |
 | `SECURE_BOOT_PKEY` | unset | Sign RP2350 images with your own P-256 key (PEM). Keep it out of git. |
 | `VERSION` | `firmware/VERSION` | Label in file names. |
@@ -83,10 +83,10 @@ git -C firmware/pico-fido apply --check ../patches/*.patch   # fix any patch tha
 
 ## Things to know before you flash your own build
 
-- **Secure boot.** "Enable secure boot" in Keyforge burns the PicoKeys release key. After that only PicoKeys-signed
+- **Secure boot.** "Enable secure boot" in Keyzforge burns the PicoKeys release key. After that only PicoKeys-signed
   firmware boots, so your build would not. On RP2350 you can sign with your own key via `SECURE_BOOT_PKEY`, but
-  Keyforge does not burn custom keys; use `picotool otp` for that, and only when you understand it is permanent.
-- **USB IDs.** Builds report as **Keyforge Key** by Keyforge, but keep the upstream USB ID (2E8A:10FE) so existing tools
+  Keyzforge does not burn custom keys; use `picotool otp` for that, and only when you understand it is permanent.
+- **USB IDs.** Builds report as **Keyzforge Key** by Keyzforge, but keep the upstream USB ID (2E8A:10FE) so existing tools
   and drivers keep working. `pico-fido/pico-fido-patch-vidpid.sh` changes it on a built image. Use an ID you are allowed
   to use (for example a free one from pid.codes).
 - **Passkeys survive** reflashing the same firmware family, but always keep another way into your accounts.
@@ -95,9 +95,9 @@ git -C firmware/pico-fido apply --check ../patches/*.patch   # fix any patch tha
 
 `.github/workflows/firmware.yml` builds every board on each change to `firmware/`. Running it by hand with
 **publish** ticked creates the release `fw-<VERSION>` with the binaries, `SHA256SUMS`, `NOTICE.md` and the complete
-source tarball. Keyforge's flasher lists those releases as **Keyforge builds**.
+source tarball. Keyzforge's flasher lists those releases as **Keyzforge builds**.
 
 ## License
 
-pico-fido and pico-keys-sdk: Copyright (c) Pol Henarejos, AGPL-3.0. Keyforge patches and scripts: AGPL-3.0. If you
+pico-fido and pico-keys-sdk: Copyright (c) Pol Henarejos, AGPL-3.0. Keyzforge patches and scripts: AGPL-3.0. If you
 distribute builds, publish their source too; the release workflow does this for you.

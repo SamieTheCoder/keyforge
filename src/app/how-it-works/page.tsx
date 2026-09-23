@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 export const metadata: Metadata = {
   title: 'How it works',
   description:
-    'How Keyforge flashes, configures and manages Keyforge security keys from the browser, and how the firmware is built.',
+    'How Keyzforge flashes, configures and manages Keyzforge security keys from the browser, and how the firmware is built.',
 };
 
 type Step = {
@@ -38,8 +38,8 @@ const STEPS: Step[] = [
     title: 'Built in the open, from source you can fork.',
     body: (
       <>
-        Keyforge firmware lives in <code>firmware/</code>: a pinned open-source
-        FIDO2 code base plus Keyforge patches, all AGPL-3.0. GitHub Actions
+        Keyzforge firmware lives in <code>firmware/</code>: a pinned open-source
+        FIDO2 code base plus Keyzforge patches, all AGPL-3.0. GitHub Actions
         builds every board in a public Docker image and publishes each release
         with checksums and the complete source. Change a build option, add a
         patch, and run the same script to get your own key.
@@ -67,8 +67,8 @@ const STEPS: Step[] = [
         esptool-js, and the write is verified by MD5. RP2040 and RP2350 boards
         are flashed over WebUSB through the bootrom&apos;s PICOBOOT interface:
         every 4 KiB sector is erased, written and read back. Before that,
-        Keyforge reads the file and refuses images built for another chip or, on
-        a secure-boot RP2350, unsigned ones.
+        Keyzforge reads the file and refuses images built for another chip or,
+        on a secure-boot RP2350, unsigned ones.
       </>
     ),
     facts: [
@@ -90,7 +90,7 @@ const STEPS: Step[] = [
     body: (
       <>
         The firmware has a small rescue applet behind its USB smart-card
-        interface. Keyforge talks to it over WebUSB to read and write the board
+        interface. Keyzforge talks to it over WebUSB to read and write the board
         record: LED pin, driver, colour order and brightness, USB name and IDs,
         and which interfaces are on. Writes are committed only after you press
         the board&apos;s BOOT button, and the page tells you when the key has
@@ -116,7 +116,7 @@ const STEPS: Step[] = [
     body: (
       <>
         Browsers do not let web pages use a key&apos;s FIDO channel directly, so
-        Keyforge sends the same CTAP2 commands through the FIDO applet on the
+        Keyzforge sends the same CTAP2 commands through the FIDO applet on the
         smart-card interface. Your PIN is hashed and encrypted in this tab with
         WebCrypto before it reaches the key, and the list of sites and accounts
         exists only on the page.
@@ -142,7 +142,7 @@ const STEPS: Step[] = [
       <>
         On ESP32-S3, ESP32-S2 and RP2350, the firmware can burn the upstream
         release-key digest into eFuse or OTP. After that the chip only boots
-        firmware signed with that key. Keyforge shows the current state, asks
+        firmware signed with that key. Keyzforge shows the current state, asks
         you to type a confirmation, and warns when the firmware you flashed
         would not boot under it. It never burns anything on its own.
       </>
@@ -214,7 +214,7 @@ export default function HowItWorksPage() {
           <span className="text-mesh">all in the open.</span>
         </h1>
         <p className="text-muted mx-auto mt-5 max-w-[56ch] text-lg leading-relaxed">
-          Keyforge is a web app that talks to your security key over WebUSB and
+          Keyzforge is a web app that talks to your security key over WebUSB and
           Web Serial, and a firmware pipeline that builds the key firmware from
           source. Move your pointer over the drawings.
         </p>

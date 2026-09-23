@@ -64,7 +64,7 @@ export default function Home() {
             className="rise text-muted mt-5 max-w-[52ch] text-lg leading-relaxed"
             style={{ ['--i' as string]: 2 }}
           >
-            Flash Keyforge firmware onto an ESP32 or Raspberry Pi board, then
+            Flash Keyzforge firmware onto an ESP32 or Raspberry Pi board, then
             tune its LED, USB identity and security from one place.
           </p>
           <div
@@ -86,7 +86,7 @@ export default function Home() {
             <div className="bg-grid absolute inset-0 [mask-image:none] opacity-80" />
             <KeyMark className="relative h-[62%] w-auto drop-shadow-[0_20px_40px_rgb(0_201_199/35%)]" />
             <div className="border-line bg-sunken/80 text-muted absolute inset-x-6 bottom-6 flex items-center justify-between rounded-[14px] border px-4 py-3 font-mono text-xs backdrop-blur">
-              <span>Keyforge firmware {SITE.firmwareVersion}</span>
+              <span>Keyzforge firmware {SITE.firmwareVersion}</span>
               <span className="text-ok">FIDO2 ready</span>
             </div>
           </div>
@@ -109,7 +109,7 @@ export default function Home() {
             href="/flash"
             icon={<DownloadSimple size={22} weight="duotone" />}
             title="Flasher"
-            text="ESP32 over Web Serial, Raspberry Pi Pico over WebUSB. Firmware comes from Keyforge or official releases, and is checked against your chip before it is written."
+            text="ESP32 over Web Serial, Raspberry Pi Pico over WebUSB. Firmware comes from Keyzforge or official releases, and is checked against your chip before it is written."
             className="md:col-span-2 md:row-span-2"
             figure={
               <Exploded
@@ -212,7 +212,7 @@ export default function Home() {
           {[
             [
               'Flash',
-              'Plug the board in while holding BOOT and let Keyforge write the firmware.',
+              'Plug the board in while holding BOOT and let Keyzforge write the firmware.',
             ],
             [
               'Configure',

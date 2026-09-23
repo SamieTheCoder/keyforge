@@ -1,6 +1,6 @@
-# Contributing to Keyforge
+# Contributing to Keyzforge
 
-Thanks for helping. Keyforge is a community project: a web app and an open firmware for FIDO2 security keys that anyone can
+Thanks for helping. Keyzforge is a community project: a web app and an open firmware for FIDO2 security keys that anyone can
 build from a cheap board. Every fix, board profile, translation and test makes keys cheaper and safer for more people.
 
 There are two halves, and you can work on either without touching the other:

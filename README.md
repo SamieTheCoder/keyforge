@@ -2,7 +2,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="public/brand/keyforge-logo-on-dark.svg">
-  <img src="public/brand/keyforge-logo-on-light.svg" alt="Keyforge" height="56">
+  <img src="public/brand/keyforge-logo-on-light.svg" alt="Keyzforge" height="56">
 </picture>
 
 ### A $5 board. A browser tab. Your own FIDO2 security key.
@@ -10,13 +10,13 @@
 Flash, configure and manage open-source FIDO2 keys on ESP32 and Raspberry Pi boards,
 with firmware built in the open by GitHub Actions. Made in India 🇮🇳, for everyone.
 
-[**keyforge.tech**](https://keyforge.tech) · [How it works](https://keyforge.tech/how-it-works) · [Build your own firmware](firmware/README.md) · [Contribute](CONTRIBUTING.md) · [हिन्दी](README.hi.md)
+[**keyzforge.tech**](https://keyzforge.tech) · [How it works](https://keyzforge.tech/how-it-works) · [Build your own firmware](firmware/README.md) · [Contribute](CONTRIBUTING.md) · [हिन्दी](README.hi.md)
 
 [![CI](https://github.com/SamieTheCoder/keyforge/actions/workflows/ci.yml/badge.svg)](https://github.com/SamieTheCoder/keyforge/actions/workflows/ci.yml)
 [![Firmware](https://github.com/SamieTheCoder/keyforge/actions/workflows/firmware.yml/badge.svg)](https://github.com/SamieTheCoder/keyforge/actions/workflows/firmware.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-0d7377)](LICENSE)
 
-<img src="docs/screenshots/home-dark.png" alt="Keyforge home page" width="860">
+<img src="docs/screenshots/home-dark.png" alt="Keyzforge home page" width="860">
 
 </div>
 
@@ -28,7 +28,7 @@ A branded hardware security key costs ₹2,500 to ₹7,000 in India. The same pr
 OATH and OTP) runs on a ₹300 to ₹700 ESP32-S3 or Raspberry Pi Pico board with open-source firmware. Getting that firmware
 onto a board used to mean toolchains, `esptool`, `picotool` and a desktop app.
 
-Keyforge does all of it in the browser. No install, no drivers, no account. Students, small teams, colleges and
+Keyzforge does all of it in the browser. No install, no drivers, no account. Students, small teams, colleges and
 anyone who cannot afford a key can now build one, check exactly what runs on it, and change it.
 
 ## What it does
@@ -40,7 +40,7 @@ anyone who cannot afford a key can now build one, check exactly what runs on it,
 | 🔑 **Passkeys** | Set or change the PIN, see storage used, list every site and account with a passkey on the key, delete the ones you no longer use. |
 | 🛡️ **Secure boot** | Read the eFuse / OTP state and, if you choose, enable or lock it with typed confirmation and plain-language warnings. |
 | 🖥️ **Monitor** | Serial boot log with hints for the usual failures and per-board reset steps. |
-| 🧬 **Open firmware** | Keyforge firmware in [`firmware/`](firmware): pinned source + small patches, built by CI, released with checksums and full source. Fork it and build your own. |
+| 🧬 **Open firmware** | Keyzforge firmware in [`firmware/`](firmware): pinned source + small patches, built by CI, released with checksums and full source. Fork it and build your own. |
 
 <table>
   <tr>
@@ -75,7 +75,7 @@ Chrome, Edge or another Chromium browser on desktop. Firefox and Safari do not s
 ## How it works
 
 ```
- ┌──────────────── browser tab (keyforge.tech) ───────────────┐
+ ┌──────────────── browser tab (keyzforge.tech) ───────────────┐
  │  Flasher        Configurator      Passkeys        Monitor  │
  │  esptool-js     rescue applet     CTAP2 over      line     │
  │  PICOBOOT       PHY record        CCID applet     parser   │
@@ -96,7 +96,7 @@ Chrome, Edge or another Chromium browser on desktop. Firefox and Safari do not s
 - **Strict headers:** enforced CSP (`connect-src 'self' https://api.github.com`), `Permissions-Policy: usb=(self), serial=(self)`,
   HSTS. No analytics, no cookies.
 
-The [How it works](https://keyforge.tech/how-it-works) page walks through each part with interactive drawings.
+The [How it works](https://keyzforge.tech/how-it-works) page walks through each part with interactive drawings.
 
 <img src="docs/screenshots/how-it-works-dark.png" alt="How it works page" width="860">
 
@@ -105,7 +105,7 @@ The [How it works](https://keyforge.tech/how-it-works) page walks through each p
 ```
 firmware/
 ├── pico-fido/       pinned open-source FIDO2 code base (v8.0, AGPL-3.0)
-├── patches/         Keyforge changes, applied at build time
+├── patches/         Keyzforge changes, applied at build time
 ├── build.sh         one script for every board
 ├── Dockerfile       ESP-IDF 5.5.1 + Arm GCC + pico-sdk 2.1.1
 └── ARCHITECTURE.md  where to change what
@@ -119,10 +119,10 @@ docker run --rm -v "$PWD:/src" -w /src -e MAX_RESIDENT_CREDENTIALS=64 \
 ```
 
 Every push to `firmware/` builds all boards in CI. Running the **Firmware** workflow with *publish* creates a `fw-<version>`
-release with `.bin` / `.uf2` files, `SHA256SUMS` and the complete source tarball, which the Flasher lists as **Keyforge firmware**.
+release with `.bin` / `.uf2` files, `SHA256SUMS` and the complete source tarball, which the Flasher lists as **Keyzforge firmware**.
 Options, custom patches and upstream updates are in [`firmware/README.md`](firmware/README.md).
 
-> Keyforge firmware is not signed with the upstream release key that secure boot burns in. Do not enable secure boot on a key
+> Keyzforge firmware is not signed with the upstream release key that secure boot burns in. Do not enable secure boot on a key
 > running it; flash the "Upstream signed build" source first if you need secure boot.
 
 ## Run it locally
@@ -152,7 +152,7 @@ a container, a VPS). WebUSB needs HTTPS outside localhost.
 
 ## Contributing
 
-Keyforge is a community project and contributions of every size are welcome: board profiles, boot-log hints, translations into
+Keyzforge is a community project and contributions of every size are welcome: board profiles, boot-log hints, translations into
 Indian languages, firmware options, tests and docs. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and
 [firmware/ARCHITECTURE.md](firmware/ARCHITECTURE.md), pick an issue labelled `good first issue`, or share a board that works
 for you with the **Board support** issue form.
@@ -172,6 +172,6 @@ not as a public issue. Details in [SECURITY.md](SECURITY.md).
 - [hairline](https://github.com/lucasmarkes/hairline) by Lucas Marques (MIT): the line drawings.
 - [Phosphor Icons](https://phosphoricons.com) (MIT), [Geist](https://vercel.com/font) (OFL).
 
-Keyforge is free software under the [GNU AGPL-3.0](LICENSE). Details in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Keyzforge is free software under the [GNU AGPL-3.0](LICENSE). Details in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-Keyforge is an independent project. Not affiliated with or endorsed by PicoKeys, Espressif, Raspberry Pi or the FIDO Alliance.
+Keyzforge is an independent project. Not affiliated with or endorsed by PicoKeys, Espressif, Raspberry Pi or the FIDO Alliance.

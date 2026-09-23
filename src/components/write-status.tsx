@@ -35,7 +35,7 @@ const COPY: Record<
   },
   unplugged: {
     title: 'Key unplugged',
-    text: 'Plug it back in. Keyforge will confirm when it returns with the new settings.',
+    text: 'Plug it back in. Keyzforge will confirm when it returns with the new settings.',
   },
   applied: {
     title: 'Done. New settings are active',

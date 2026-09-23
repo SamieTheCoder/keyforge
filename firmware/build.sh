@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: AGPL-3.0-only
 #
-# Build Keyforge firmware: pico-fido (firmware/pico-fido, pinned submodule)
+# Build Keyzforge firmware: pico-fido (firmware/pico-fido, pinned submodule)
 # plus the patches in firmware/patches. Used by CI and for local custom builds.
 #
 #   firmware/build.sh <board> [<board> ...]
@@ -16,7 +16,7 @@
 #   MAX_RESIDENT_CREDENTIALS   passkey slots, 1..256 (default 256, firmware limit)
 #   ENABLE_OATH_APP            1/0, OATH (TOTP/HOTP) applet (default 1)
 #   ENABLE_OTP_APP             1/0, Yubico-style OTP applet (default 1)
-#                              Keyforge's Configure and Passkeys pages need at least
+#                              Keyzforge's Configure and Passkeys pages need at least
 #                              one of the two: they enable the USB smart-card interface.
 #   ENABLE_POWER_ON_RESET      1/0 (default: upstream default)
 #   SECURE_BOOT_PKEY           PEM private key to sign RP2350 images with YOUR key.

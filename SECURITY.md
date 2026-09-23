@@ -1,6 +1,6 @@
 # Security policy
 
-Keyforge handles security keys, so we take reports seriously.
+Keyzforge handles security keys, so we take reports seriously.
 
 ## Report a vulnerability
 
@@ -17,7 +17,7 @@ In scope:
 - The web app: anything that could leak a PIN, passkey list, serial number or other key data out of the browser tab, cross-site
   issues, the `/api/firmware` route (allowlist bypass, SSRF), CSP or header weaknesses.
 - Firmware patches in `firmware/patches` and the build and release pipeline (tampered artifacts, checksum or source mismatch).
-- Anything that could make Keyforge write to a key without the user's confirmation, or burn eFuse / OTP unexpectedly.
+- Anything that could make Keyzforge write to a key without the user's confirmation, or burn eFuse / OTP unexpectedly.
 
 Firmware issues that also exist in the unpatched upstream code base are still welcome here; we will coordinate with upstream.
 
@@ -25,7 +25,7 @@ Firmware issues that also exist in the unpatched upstream code base are still we
 
 | Component | Supported |
 | --- | --- |
-| Website (keyforge.tech) | latest `main` |
+| Website (keyzforge.tech) | latest `main` |
 | Firmware | latest `fw-*` release |
 
 ## Verifying a firmware release

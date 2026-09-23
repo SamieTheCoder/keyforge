@@ -164,7 +164,7 @@ export function boardVerdict(items: BoardItem[]): Verdict {
   return {
     level: 'idle',
     title: 'No board seen',
-    text: 'Plug in the board and click Find board. Allow the device once so Keyforge can watch it.',
+    text: 'Plug in the board and click Find board. Allow the device once so Keyzforge can watch it.',
   };
 }
 

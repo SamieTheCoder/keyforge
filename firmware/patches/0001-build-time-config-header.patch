@@ -6,7 +6,7 @@ index 8bd0efb..a53817b 100644
  extern void set_opts(uint8_t);
  #define MAX_CREDENTIAL_COUNT_IN_LIST 16
  #define MAX_CRED_ID_LENGTH        1024
-+/* Keyforge: optional build-time overrides, written by firmware/build.sh. */
++/* Keyzforge: optional build-time overrides, written by firmware/build.sh. */
 +#if defined(__has_include)
 +#if __has_include("keyforge_config.h")
 +#include "keyforge_config.h"

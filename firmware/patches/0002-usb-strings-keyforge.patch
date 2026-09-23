@@ -8,8 +8,8 @@ index 4282295..04a546c 100644
      (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
 -    "Pol Henarejos",                     // 1: Manufacturer
 -    "Pico Key",                       // 2: Product
-+    "Keyforge",                         // 1: Manufacturer
-+    "Keyforge Key",                       // 2: Product (rename per key in Configure)
++    "Keyzforge",                         // 1: Manufacturer
++    "Keyzforge Key",                       // 2: Product (rename per key in Configure)
      "11223344",                      // 3: Serials, should use chip ID
      "Config",               // 4: Vendor Interface
      "MAC"                   // 5: MAC address string, handled separately

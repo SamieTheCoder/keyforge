@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /*
- * Keyforge design tokens.
+ * Keyzforge design tokens.
  * One accent family: the brand teal mesh (#14ffec -> #00c9c7 -> #0d7377).
  * Danger red is reserved for irreversible actions (secure boot).
  * Radius rule: panels 16px, controls 10px, pills full.
@@ -209,7 +209,7 @@
   }
 }
 
-/* Hairline figures (@lucasmarkes/hairline) drawn in the Keyforge palette, in both themes.
+/* Hairline figures (@lucasmarkes/hairline) drawn in the Keyzforge palette, in both themes.
    The plate colour must match what the figure sits on, so set --figure-plate on the container. */
 .figure {
   --hairline-plate: var(--figure-plate, var(--panel-solid));

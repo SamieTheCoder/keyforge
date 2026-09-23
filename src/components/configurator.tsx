@@ -166,12 +166,12 @@ export function Configurator() {
       if (err.name === 'NotFoundError') {
         log(
           'info',
-          'No device selected. The key must be running Keyforge firmware (not in bootloader mode).'
+          'No device selected. The key must be running Keyzforge firmware (not in bootloader mode).'
         );
       } else if (err.name === 'SecurityError') {
         log(
           'error',
-          'The browser blocked USB access. Open Keyforge over https or localhost.'
+          'The browser blocked USB access. Open Keyzforge over https or localhost.'
         );
       } else {
         log('error', err.message);
@@ -328,7 +328,7 @@ export function Configurator() {
               <div className="flex-1">
                 <p className="text-lg font-semibold">Connect a running key</p>
                 <p className="text-muted mt-1 text-sm">
-                  The key must be running Keyforge firmware, not sitting in the
+                  The key must be running Keyzforge firmware, not sitting in the
                   bootloader. No PIN, admin rights or smart-card driver are
                   needed.
                 </p>
@@ -356,7 +356,7 @@ export function Configurator() {
                 Close other apps or tabs that use the key. Only one can hold it.
               </li>
               <li className="border-line bg-sunken rounded-[10px] border px-4 py-3">
-                In the device chooser, pick the key (usually “Keyforge Key” or
+                In the device chooser, pick the key (usually “Keyzforge Key” or
                 the name you gave it), not the ESP32 bootloader.
               </li>
             </ul>
@@ -708,7 +708,7 @@ export function Configurator() {
               set(
                 'usbProduct',
                 e.target.checked
-                  ? (session.current?.t.device.productName ?? 'Keyforge Key')
+                  ? (session.current?.t.device.productName ?? 'Keyzforge Key')
                   : null
               )
             }
@@ -1019,7 +1019,7 @@ function SecureBoot({
         <ul className="list-disc space-y-1 pl-5">
           <li>
             Afterwards {mcuName} only boots firmware signed with the upstream
-            release key built into the firmware. Keyforge builds and your own
+            release key built into the firmware. Keyzforge builds and your own
             builds stop working.
           </li>
           <li>

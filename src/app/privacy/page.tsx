@@ -3,7 +3,7 @@ import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Privacy',
-  description: 'What Keyforge does and does not collect.',
+  description: 'What Keyzforge does and does not collect.',
 };
 
 const UPDATED = '3 October 2026';
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
         <section>
           <h2>The short version</h2>
           <p>
-            Keyforge has no accounts, no analytics, no cookies and no tracking.
+            Keyzforge has no accounts, no analytics, no cookies and no tracking.
             Everything you do with your security key happens in your browser and
             goes straight to the USB device. We never see your key, its
             settings, its serial number or your passkeys.
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
         <section>
           <h2>Network requests</h2>
           <p>
-            Keyforge only contacts two places, and only when you open the Flash
+            Keyzforge only contacts two places, and only when you open the Flash
             page or download firmware:
           </p>
           <ul className="mt-3 list-disc space-y-2 pl-5">
@@ -98,7 +98,7 @@ export default function PrivacyPage() {
         <section>
           <h2>Children</h2>
           <p>
-            Keyforge is a developer tool and is not directed at children. It
+            Keyzforge is a developer tool and is not directed at children. It
             does not knowingly collect any personal data from anyone.
           </p>
         </section>

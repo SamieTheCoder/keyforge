@@ -35,7 +35,7 @@ Never edit them in place for a pull request: make the change, save it as a patch
 | `cbor_make_credential.c` | `authenticatorMakeCredential`: create a passkey |
 | `cbor_get_assertion.c` | `authenticatorGetAssertion`: sign in |
 | `cbor_client_pin.c` | PIN set / change / tokens (PIN protocols 1 and 2) |
-| `cbor_cred_mgmt.c` | Credential management: storage info, list, delete (used by Keyforge Passkeys) |
+| `cbor_cred_mgmt.c` | Credential management: storage info, list, delete (used by Keyzforge Passkeys) |
 | `cbor_get_info.c` | `authenticatorGetInfo`: versions, options, AAGUID, limits |
 | `cbor_config.c`, `cbor_reset.c`, `cbor_selection.c`, `cbor_large_blobs.c` | Config, reset, selection, large blobs |
 | `cbor_vendor.c`, `vault.c` | Vendor commands |
@@ -55,7 +55,7 @@ Never edit them in place for a pull request: make the change, save it as a patch
 | `usb/usb_descriptors.c` | USB device, interface and string descriptors (patched by `0002`) |
 | `usb/hid`, `usb/ccid` | CTAP HID transport and CCID / WebCCID transport |
 | `apdu.c`, `tlv.c` | APDU parsing and TLV helpers |
-| `rescue.c` | Rescue applet that Keyforge Configure talks to: info, PHY read / write, secure boot |
+| `rescue.c` | Rescue applet that Keyzforge Configure talks to: info, PHY read / write, secure boot |
 | `fs/phy.c`, `fs/phy.h` | PHY record: LED pin / driver / order / brightness, USB IDs, interfaces, options |
 | `fs/file.c`, `fs/flash.c`, `fs/low_flash.c` | Flash-backed file system with wear handling |
 | `otp/otp_*.c` | Per-platform eFuse / OTP access and secure boot enable / lock |

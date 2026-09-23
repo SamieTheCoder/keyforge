@@ -1,6 +1,6 @@
 # Third-party notices
 
-Keyforge is licensed under AGPL-3.0-only (see `LICENSE`). It includes or is derived from the following work.
+Keyzforge is licensed under AGPL-3.0-only (see `LICENSE`). It includes or is derived from the following work.
 
 ## picoflash (MIT)
 
@@ -37,7 +37,7 @@ The rescue applet, PHY record and FIDO-over-CCID wire formats in `src/lib/protoc
 `src/lib/ctap.ts` were implemented from the pico-fido and pico-keys-sdk sources by Pol Henarejos.
 https://github.com/polhenarejos/pico-fido, https://github.com/polhenarejos/pico-keys-sdk
 
-Firmware is not bundled with the website. "Keyforge builds" are compiled from unmodified pico-fido source by
+Firmware is not bundled with the website. "Keyzforge builds" are compiled from unmodified pico-fido source by
 `.github/workflows/firmware.yml` and published as releases of this repository, each with the complete corresponding
 source attached. The official and LibreKeys builds are downloaded on demand from their own releases, where their
 source is published:
@@ -58,5 +58,5 @@ Icons from @phosphor-icons/react; fonts from the geist package by Vercel.
 ## Trademarks
 
 Raspberry Pi, RP2040 and RP2350 are trademarks of Raspberry Pi Ltd. ESP32 is a trademark of Espressif Systems. FIDO is
-a trademark of the FIDO Alliance. Pico Keys and pico-fido belong to their author. Keyforge is an independent project and
+a trademark of the FIDO Alliance. Pico Keys and pico-fido belong to their author. Keyzforge is an independent project and
 is not affiliated with, endorsed or certified by any of them.

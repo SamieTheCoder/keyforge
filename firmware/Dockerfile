@@ -1,4 +1,4 @@
-# One image that builds every Keyforge firmware target:
+# One image that builds every Keyzforge firmware target:
 #   docker build -t keyforge-fw firmware
 #   docker run --rm -v "$PWD:/src" -w /src keyforge-fw firmware/build.sh pico pico2 esp32s3 esp32s2
 FROM espressif/idf:v5.5.1

@@ -368,7 +368,7 @@ export function Flasher() {
       ) {
         log(
           'error',
-          'The port is busy. Close Arduino IDE, idf.py monitor, PuTTY or another Keyforge tab, then replug the board.'
+          'The port is busy. Close Arduino IDE, idf.py monitor, PuTTY or another Keyzforge tab, then replug the board.'
         );
       } else {
         log(
