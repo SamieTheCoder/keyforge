@@ -28,7 +28,8 @@ const id = (vid?: number, pid?: number) =>
     .padStart(4, '0')}`.toUpperCase();
 
 const isEspBoot = (vid?: number, pid?: number) =>
-  vid === ESPRESSIF_VID && (pid === ESP_USB_JTAG_PID || pid === ESP_ROM_OTG_PID);
+  vid === ESPRESSIF_VID &&
+  (pid === ESP_USB_JTAG_PID || pid === ESP_ROM_OTG_PID);
 
 export function classifyUsb(d: {
   vendorId: number;
@@ -39,34 +40,86 @@ export function classifyUsb(d: {
   const usbId = id(d.vendorId, d.productId);
   // Bootloaders first: their IDs are fixed and can never be a running key.
   if (isEspBoot(d.vendorId, d.productId)) {
-    return { kind: 'esp-bootloader', key: `esp:${usbId}`, label: 'ESP32 bootloader', usbId, via: 'USB' };
+    return {
+      kind: 'esp-bootloader',
+      key: `esp:${usbId}`,
+      label: 'ESP32 bootloader',
+      usbId,
+      via: 'USB',
+    };
   }
   if (d.hasWebCcid) {
-    return { kind: 'pico-key', key: `pico:${usbId}`, label: d.productName || 'Pico key', usbId, via: 'USB' };
+    return {
+      kind: 'pico-key',
+      key: `pico:${usbId}`,
+      label: d.productName || 'Security key',
+      usbId,
+      via: 'USB',
+    };
   }
-  if (d.vendorId === RPI_VID && (d.productId === RP2040_BOOT_PID || d.productId === RP2350_BOOT_PID)) {
+  if (
+    d.vendorId === RPI_VID &&
+    (d.productId === RP2040_BOOT_PID || d.productId === RP2350_BOOT_PID)
+  ) {
     const chip = d.productId === RP2040_BOOT_PID ? 'RP2040' : 'RP2350';
-    return { kind: 'rp-bootsel', key: `rp:${usbId}`, label: `${chip} BOOTSEL`, usbId, via: 'USB' };
+    return {
+      kind: 'rp-bootsel',
+      key: `rp:${usbId}`,
+      label: `${chip} BOOTSEL`,
+      usbId,
+      via: 'USB',
+    };
   }
-  return { kind: 'other', key: `other:${usbId}`, label: d.productName || 'USB device', usbId, via: 'USB' };
+  return {
+    kind: 'other',
+    key: `other:${usbId}`,
+    label: d.productName || 'USB device',
+    usbId,
+    via: 'USB',
+  };
 }
 
-export function classifySerial(info: { usbVendorId?: number; usbProductId?: number } = {}): BoardItem {
+export function classifySerial(
+  info: { usbVendorId?: number; usbProductId?: number } = {}
+): BoardItem {
   if (info.usbVendorId == null) {
-    return { kind: 'other', key: 'serial:unknown', label: 'Serial port', usbId: 'n/a', via: 'Serial' };
+    return {
+      kind: 'other',
+      key: 'serial:unknown',
+      label: 'Serial port',
+      usbId: 'n/a',
+      via: 'Serial',
+    };
   }
   const usbId = id(info.usbVendorId, info.usbProductId);
   if (isEspBoot(info.usbVendorId, info.usbProductId)) {
-    return { kind: 'esp-bootloader', key: `esp:${usbId}`, label: 'ESP32 bootloader', usbId, via: 'Serial' };
+    return {
+      kind: 'esp-bootloader',
+      key: `esp:${usbId}`,
+      label: 'ESP32 bootloader',
+      usbId,
+      via: 'Serial',
+    };
   }
-  return { kind: 'other', key: `serial:${usbId}`, label: 'Serial adapter', usbId, via: 'Serial' };
+  return {
+    kind: 'other',
+    key: `serial:${usbId}`,
+    label: 'Serial adapter',
+    usbId,
+    via: 'Serial',
+  };
 }
 
 export function dedupeBoards(items: BoardItem[]): BoardItem[] {
   const map = new Map<string, BoardItem>();
   for (const it of items) {
     const prev = map.get(it.key);
-    map.set(it.key, prev ? { ...prev, via: prev.via === it.via ? prev.via : 'USB + Serial' } : it);
+    map.set(
+      it.key,
+      prev
+        ? { ...prev, via: prev.via === it.via ? prev.via : 'USB + Serial' }
+        : it
+    );
   }
   return [...map.values()];
 }
@@ -88,7 +141,11 @@ export function boardVerdict(items: BoardItem[]): Verdict {
     };
   }
   if (has('pico-key')) {
-    return { level: 'ok', title: 'Firmware is running', text: 'The board answers as a Pico key. The flash worked.' };
+    return {
+      level: 'ok',
+      title: 'Firmware is running',
+      text: 'The board answers as a security key. The flash worked.',
+    };
   }
   if (has('esp-bootloader')) {
     return {
@@ -121,16 +178,31 @@ export function describeTransition(
   const bootA = a.has('esp-bootloader') || a.has('rp-bootsel');
   const bootB = b.has('esp-bootloader') || b.has('rp-bootsel');
   if (bootA && !bootB && b.has('pico-key')) {
-    return { level: 'ok', text: 'Bootloader closed and a Pico key appeared. The new firmware booted, so the flash succeeded.' };
+    return {
+      level: 'ok',
+      text: 'Bootloader closed and the security key appeared. The new firmware booted, so the flash succeeded.',
+    };
   }
-  if (!a.has('pico-key') && b.has('pico-key')) return { level: 'ok', text: 'Pico key connected. Firmware is running.' };
+  if (!a.has('pico-key') && b.has('pico-key'))
+    return {
+      level: 'ok',
+      text: 'Security key connected. Firmware is running.',
+    };
   if (a.has('pico-key') && !b.has('pico-key') && bootB) {
-    return { level: 'warn', text: 'Pico key left and the board came back in bootloader mode.' };
+    return {
+      level: 'warn',
+      text: 'The security key left and the board came back in bootloader mode.',
+    };
   }
-  if (!bootA && bootB) return { level: 'warn', text: 'Board appeared in bootloader mode.' };
-  if (a.has('pico-key') && !b.has('pico-key')) return { level: 'info', text: 'Pico key unplugged.' };
+  if (!bootA && bootB)
+    return { level: 'warn', text: 'Board appeared in bootloader mode.' };
+  if (a.has('pico-key') && !b.has('pico-key'))
+    return { level: 'info', text: 'Security key unplugged.' };
   if (bootA && !bootB) {
-    return { level: 'info', text: 'Bootloader closed. If the board was reset, wait a moment for the Pico key to appear.' };
+    return {
+      level: 'info',
+      text: 'Bootloader closed. If the board was reset, wait a moment for the security key to appear.',
+    };
   }
   return null;
 }
@@ -180,7 +252,10 @@ export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
 export function logLevel(line: string): LogLevel | null {
   const m = /^([EWIDV]) \(\d+\)/.exec(line);
-  if (m) return ({ E: 'error', W: 'warn', I: 'info', D: 'debug', V: 'debug' } as const)[m[1] as 'E'];
+  if (m)
+    return (
+      { E: 'error', W: 'warn', I: 'info', D: 'debug', V: 'debug' } as const
+    )[m[1] as 'E'];
   if (/Guru Meditation|abort\(\)|panic|Backtrace:/i.test(line)) return 'error';
   return null;
 }
@@ -192,32 +267,72 @@ export interface Hint {
 
 export function bootHint(line: string): Hint | null {
   const l = line.toLowerCase();
-  if (l.includes('waiting for download') || /boot:0x[0-9a-f]+ \(download/.test(l)) {
-    return { level: 'warn', text: 'Board is in download mode (BOOT was held during reset). Press RESET alone to run the firmware.' };
+  if (
+    l.includes('waiting for download') ||
+    /boot:0x[0-9a-f]+ \(download/.test(l)
+  ) {
+    return {
+      level: 'warn',
+      text: 'Board is in download mode (BOOT was held during reset). Press RESET alone to run the firmware.',
+    };
   }
   if (l.includes('invalid header: 0xffffffff')) {
-    return { level: 'error', text: 'Flash is empty at the boot address. Flash the firmware again (merged .bin at 0x0).' };
+    return {
+      level: 'error',
+      text: 'Flash is empty at the boot address. Flash the firmware again (merged .bin at 0x0).',
+    };
   }
-  if (l.includes('invalid header') || l.includes('checksum failure') || l.includes('image hash failed')) {
-    return { level: 'error', text: 'Firmware image is corrupt or written at the wrong address. Flash again.' };
+  if (
+    l.includes('invalid header') ||
+    l.includes('checksum failure') ||
+    l.includes('image hash failed')
+  ) {
+    return {
+      level: 'error',
+      text: 'Firmware image is corrupt or written at the wrong address. Flash again.',
+    };
   }
-  if (l.includes('no bootable app partitions') || l.includes('ota data partition invalid')) {
-    return { level: 'error', text: 'No bootable app found. Flash the full merged image, not only the app.' };
+  if (
+    l.includes('no bootable app partitions') ||
+    l.includes('ota data partition invalid')
+  ) {
+    return {
+      level: 'error',
+      text: 'No bootable app found. Flash the full merged image, not only the app.',
+    };
   }
-  if (l.includes('secure boot check fail') || l.includes('signature verification failed')) {
-    return { level: 'error', text: 'Secure boot rejected the image. Only firmware signed with the burned key will boot.' };
+  if (
+    l.includes('secure boot check fail') ||
+    l.includes('signature verification failed')
+  ) {
+    return {
+      level: 'error',
+      text: 'Secure boot rejected the image. Only firmware signed with the burned key will boot.',
+    };
   }
   if (l.includes('psram') && (l.includes('fail') || l.includes('not found'))) {
-    return { level: 'warn', text: 'PSRAM was not detected. Check that the firmware matches your module (for example N8R8 vs N8).' };
+    return {
+      level: 'warn',
+      text: 'PSRAM was not detected. Check that the firmware matches your module (for example N8R8 vs N8).',
+    };
   }
   if (l.includes('brownout')) {
-    return { level: 'warn', text: 'Brownout reset: the board is not getting enough power. Try another cable or port.' };
+    return {
+      level: 'warn',
+      text: 'Brownout reset: the board is not getting enough power. Try another cable or port.',
+    };
   }
   if (l.includes('guru meditation')) {
-    return { level: 'error', text: 'Firmware crashed. Save the log and report it to the firmware project.' };
+    return {
+      level: 'error',
+      text: 'Firmware crashed. Save the log and report it to the firmware project.',
+    };
   }
   if (/^rst:0x[0-9a-f]+/.test(l) || l.startsWith('esp-rom:')) {
-    return { level: 'info', text: 'Chip reset detected. Watching the boot messages.' };
+    return {
+      level: 'info',
+      text: 'Chip reset detected. Watching the boot messages.',
+    };
   }
   return null;
 }
@@ -229,7 +344,10 @@ export interface SignalStep {
 }
 
 /** DTR/RTS sequences matching esptool's reset strategies. */
-export function resetSteps(mode: 'run' | 'download', { usbJtag }: { usbJtag: boolean }): SignalStep[] {
+export function resetSteps(
+  mode: 'run' | 'download',
+  { usbJtag }: { usbJtag: boolean }
+): SignalStep[] {
   if (mode === 'run') {
     return [
       { dtr: false, rts: true, wait: usbJtag ? 200 : 100 },

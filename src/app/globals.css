@@ -34,7 +34,8 @@
   --ok: #3ee0a3;
   --grid: rgb(20 255 236 / 5%);
   --grid-bold: rgb(20 255 236 / 9%);
-  --shadow: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 60px -24px rgb(0 0 0 / 60%);
+  --shadow:
+    0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 60px -24px rgb(0 0 0 / 60%);
   color-scheme: dark;
 }
 
@@ -63,7 +64,8 @@
     --ok: #0f7a52;
     --grid: rgb(13 115 119 / 6%);
     --grid-bold: rgb(13 115 119 / 11%);
-    --shadow: 0 1px 2px rgb(20 40 40 / 6%), 0 18px 40px -20px rgb(20 40 40 / 18%);
+    --shadow:
+      0 1px 2px rgb(20 40 40 / 6%), 0 18px 40px -20px rgb(20 40 40 / 18%);
     color-scheme: light;
   }
 }
@@ -163,7 +165,11 @@
     24px 24px,
     24px 24px;
   background-position: -1px -1px;
-  mask-image: radial-gradient(ellipse 110% 80% at 50% 0%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(
+    ellipse 110% 80% at 50% 0%,
+    #000 30%,
+    transparent 100%
+  );
 }
 
 /* Brand mesh wash: the three radial stops from the logo artwork. */
@@ -175,7 +181,12 @@
 }
 
 .text-mesh {
-  background: linear-gradient(110deg, var(--accent) 0%, var(--accent-2) 45%, var(--accent-3) 100%);
+  background: linear-gradient(
+    110deg,
+    var(--accent) 0%,
+    var(--accent-2) 45%,
+    var(--accent-3) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -261,9 +272,9 @@ input[type='range'] {
 
 .term {
   background:
-    linear-gradient(rgb(255 255 255 / 2.5%) 1px, transparent 1px) 0 0 / 100% 20px,
+    linear-gradient(rgb(255 255 255 / 2.5%) 1px, transparent 1px) 0 0 / 100%
+      20px,
     #090b0b;
   color: #d4e3e0;
-  font:
-    12.5px/20px var(--font-mono);
+  font: 12.5px/20px var(--font-mono);
 }

@@ -11,7 +11,13 @@ export interface BrowserCaps {
   secure: boolean;
 }
 
-const SERVER: BrowserCaps = { ready: false, usb: false, serial: false, dirPicker: false, secure: false };
+const SERVER: BrowserCaps = {
+  ready: false,
+  usb: false,
+  serial: false,
+  dirPicker: false,
+  secure: false,
+};
 let client: BrowserCaps | null = null;
 
 function read(): BrowserCaps {

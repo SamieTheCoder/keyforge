@@ -220,10 +220,15 @@ export const APDU = {
     buildApdu({ cla: 0x00, ins: 0xa4, p1: 0x04, data: RESCUE_AID, le: 0 }),
   readPhy: () => buildApdu({ cla: CLA, ins: RESCUE_INS.READ, p1: 0x01 }),
   readFlashInfo: () => buildApdu({ cla: CLA, ins: RESCUE_INS.READ, p1: 0x02 }),
-  readSecureBoot: () =>
-    buildApdu({ cla: CLA, ins: RESCUE_INS.READ, p1: 0x03 }),
+  readSecureBoot: () => buildApdu({ cla: CLA, ins: RESCUE_INS.READ, p1: 0x03 }),
   writePhy: (tlv: Uint8Array) =>
-    buildApdu({ cla: CLA, ins: RESCUE_INS.WRITE, p1: 0x01, data: tlv, le: null }),
+    buildApdu({
+      cla: CLA,
+      ins: RESCUE_INS.WRITE,
+      p1: 0x01,
+      data: tlv,
+      le: null,
+    }),
   /** IRREVERSIBLE on real hardware. P1 = boot key slot, P2 = 1 for lock. */
   enableSecureBoot: (bootKey: number, lock: boolean) =>
     buildApdu({
@@ -301,7 +306,10 @@ export function parseSelect(data: Uint8Array): DeviceInfo {
     serialHex: toHex(serial, ''),
     serialDecimal:
       serial.length >= 4
-        ? u32be(Uint8Array.of(serial[0] & 0x03, serial[1], serial[2], serial[3]), 0)
+        ? u32be(
+            Uint8Array.of(serial[0] & 0x03, serial[1], serial[2], serial[3]),
+            0
+          )
         : null,
     build: data.length >= 16 ? u32be(data, 12) : null,
   };
@@ -317,7 +325,8 @@ export interface FlashInfo {
 }
 
 export function parseFlashInfo(data: Uint8Array): FlashInfo {
-  const at = (i: number) => (data.length >= (i + 1) * 4 ? u32be(data, i * 4) : null);
+  const at = (i: number) =>
+    data.length >= (i + 1) * 4 ? u32be(data, i * 4) : null;
   return {
     free: at(0),
     used: at(1),
@@ -436,12 +445,18 @@ export type Rgb = readonly [number, number, number];
 /** Same mapping as firmware neopixel_rgb_ordered(). */
 export function applyLedOrder(order: number, [r, g, b]: Rgb): Rgb {
   switch (order) {
-    case 1: return [r, b, g]; // RBG
-    case 2: return [g, r, b]; // GRB
-    case 3: return [g, b, r]; // GBR
-    case 4: return [b, r, g]; // BRG
-    case 5: return [b, g, r]; // BGR
-    default: return [r, g, b]; // RGB
+    case 1:
+      return [r, b, g]; // RBG
+    case 2:
+      return [g, r, b]; // GRB
+    case 3:
+      return [g, b, r]; // GBR
+    case 4:
+      return [b, r, g]; // BRG
+    case 5:
+      return [b, g, r]; // BGR
+    default:
+      return [r, g, b]; // RGB
   }
 }
 
@@ -461,7 +476,8 @@ export const PRIMARIES: { id: Primary; label: string; rgb: Rgb }[] = [
   { id: 'blue', label: 'Blue', rgb: [0, 0, 255] },
 ];
 
-const same = (a: Rgb, b: Rgb) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+const same = (a: Rgb, b: Rgb) =>
+  a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 
 /**
  * The channel order that shows `ready` when idle and `noHost` when unplugged
@@ -471,7 +487,10 @@ const same = (a: Rgb, b: Rgb) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
 export function orderFor(ready: Primary, noHost: Primary): number | null {
   const want = (p: Primary) => PRIMARIES.find((x) => x.id === p)!.rgb;
   for (let order = 0; order < LED_ORDERS.length; order++) {
-    if (same(applyLedOrder(order, [0, 255, 0]), want(ready)) && same(applyLedOrder(order, [255, 0, 0]), want(noHost))) {
+    if (
+      same(applyLedOrder(order, [0, 255, 0]), want(ready)) &&
+      same(applyLedOrder(order, [255, 0, 0]), want(noHost))
+    ) {
       return order;
     }
   }
@@ -479,13 +498,23 @@ export function orderFor(ready: Primary, noHost: Primary): number | null {
 }
 
 /** Inverse of orderFor: which primaries an order produces for Ready / No computer. */
-export function primariesOf(order: number): { ready: Primary; noHost: Primary } {
+export function primariesOf(order: number): {
+  ready: Primary;
+  noHost: Primary;
+} {
   const name = (c: Rgb) => PRIMARIES.find((p) => same(p.rgb, c))!.id;
-  return { ready: name(applyLedOrder(order, [0, 255, 0])), noHost: name(applyLedOrder(order, [255, 0, 0])) };
+  return {
+    ready: name(applyLedOrder(order, [0, 255, 0])),
+    noHost: name(applyLedOrder(order, [255, 0, 0])),
+  };
 }
 
 /** Colour the LED shows in a state for a channel order and brightness (0-15). */
-export function ledColour(order: number, state: Rgb, brightness = MAX_BRIGHTNESS): string {
+export function ledColour(
+  order: number,
+  state: Rgb,
+  brightness = MAX_BRIGHTNESS
+): string {
   const k = Math.max(0.12, brightness / MAX_BRIGHTNESS);
   const [r, g, b] = applyLedOrder(order, state).map((v) => Math.round(v * k));
   return `rgb(${r} ${g} ${b})`;
@@ -627,7 +656,11 @@ export function validatePhy(cfg: PhyConfig): string[] {
   }
   if (
     cfg.curves != null &&
-    !(Number.isInteger(cfg.curves) && cfg.curves >= 0 && cfg.curves <= 0xffffffff)
+    !(
+      Number.isInteger(cfg.curves) &&
+      cfg.curves >= 0 &&
+      cfg.curves <= 0xffffffff
+    )
   ) {
     errors.push('Curve mask must be a 32-bit value.');
   }
@@ -638,16 +671,21 @@ export function validatePhy(cfg: PhyConfig): string[] {
       errors.push('At least one USB interface must stay enabled.');
     }
   }
-  if (cfg.ledDriver != null && !LED_DRIVERS.some((d) => d.id === cfg.ledDriver)) {
+  if (
+    cfg.ledDriver != null &&
+    !LED_DRIVERS.some((d) => d.id === cfg.ledDriver)
+  ) {
     errors.push('Unknown LED driver.');
   }
   if (cfg.ledOrder != null) {
     if (cfg.ledDriver == null) {
       errors.push('LED colour order needs an explicit LED driver.');
     }
-    if (
-      !(Number.isInteger(cfg.ledOrder) && cfg.ledOrder >= 0 && cfg.ledOrder < LED_ORDERS.length)
-    ) {
+    if (!(
+      Number.isInteger(cfg.ledOrder) &&
+      cfg.ledOrder >= 0 &&
+      cfg.ledOrder < LED_ORDERS.length
+    )) {
       errors.push('Unknown LED colour order.');
     }
   }
@@ -659,12 +697,20 @@ export function serializePhy(cfg: PhyConfig): Uint8Array {
   const errors = validatePhy(cfg);
   if (errors.length) throw new Error(errors.join(' '));
   const out: number[] = [];
-  const push = (tag: number, ...vals: number[]) => out.push(tag, vals.length, ...vals);
+  const push = (tag: number, ...vals: number[]) =>
+    out.push(tag, vals.length, ...vals);
   if (cfg.vid != null && cfg.pid != null) {
-    push(PHY_TAG.VIDPID, cfg.vid >> 8, cfg.vid & 0xff, cfg.pid >> 8, cfg.pid & 0xff);
+    push(
+      PHY_TAG.VIDPID,
+      cfg.vid >> 8,
+      cfg.vid & 0xff,
+      cfg.pid >> 8,
+      cfg.pid & 0xff
+    );
   }
   if (cfg.ledGpio != null) push(PHY_TAG.LED_GPIO, cfg.ledGpio);
-  if (cfg.ledBrightness != null) push(PHY_TAG.LED_BRIGHTNESS, cfg.ledBrightness);
+  if (cfg.ledBrightness != null)
+    push(PHY_TAG.LED_BRIGHTNESS, cfg.ledBrightness);
   push(PHY_TAG.OPTS, (cfg.opts >> 8) & 0xff, cfg.opts & 0xff);
   if (cfg.upBtn != null) push(PHY_TAG.UP_BTN, cfg.upBtn);
   if (cfg.usbProduct != null) {
@@ -672,18 +718,27 @@ export function serializePhy(cfg: PhyConfig): Uint8Array {
   }
   if (cfg.curves != null) {
     const c = cfg.curves >>> 0;
-    push(PHY_TAG.ENABLED_CURVES, (c >>> 24) & 0xff, (c >>> 16) & 0xff, (c >>> 8) & 0xff, c & 0xff);
+    push(
+      PHY_TAG.ENABLED_CURVES,
+      (c >>> 24) & 0xff,
+      (c >>> 16) & 0xff,
+      (c >>> 8) & 0xff,
+      c & 0xff
+    );
   }
   if (cfg.usbItf != null) push(PHY_TAG.ENABLED_USB_ITF, cfg.usbItf);
   if (cfg.ledDriver != null) {
-    if (cfg.ledOrder != null) push(PHY_TAG.LED_DRIVER, cfg.ledDriver, cfg.ledOrder);
+    if (cfg.ledOrder != null)
+      push(PHY_TAG.LED_DRIVER, cfg.ledDriver, cfg.ledOrder);
     else push(PHY_TAG.LED_DRIVER, cfg.ledDriver);
   }
   for (const u of cfg.unknown) {
-    if (u.value.length > 255) throw new Error(`Unknown tag 0x${u.tag.toString(16)} too long`);
+    if (u.value.length > 255)
+      throw new Error(`Unknown tag 0x${u.tag.toString(16)} too long`);
     out.push(u.tag, u.value.length, ...u.value);
   }
-  if (out.length > 255) throw new Error('Configuration record exceeds 255 bytes');
+  if (out.length > 255)
+    throw new Error('Configuration record exceeds 255 bytes');
   return Uint8Array.from(out);
 }
 
@@ -748,28 +803,64 @@ export interface Risk {
   reason: string;
 }
 
-export function gpioRisk(mcu: number | null | undefined, gpio: number | null): Risk | null {
+export function gpioRisk(
+  mcu: number | null | undefined,
+  gpio: number | null
+): Risk | null {
   if (gpio == null) return null;
   if (mcu === MCU.ESP32S3) {
-    if (gpio > 48) return { level: 'block', reason: 'ESP32-S3 has GPIO 0-48 only.' };
+    if (gpio > 48)
+      return { level: 'block', reason: 'ESP32-S3 has GPIO 0-48 only.' };
     if (gpio === 19 || gpio === 20) {
-      return { level: 'block', reason: 'GPIO 19/20 are the USB D-/D+ pins. The key would vanish from USB.' };
+      return {
+        level: 'block',
+        reason:
+          'GPIO 19/20 are the USB D-/D+ pins. The key would vanish from USB.',
+      };
     }
     if (gpio >= 26 && gpio <= 32) {
-      return { level: 'block', reason: 'GPIO 26-32 drive the SPI flash and PSRAM. The board would crash.' };
+      return {
+        level: 'block',
+        reason:
+          'GPIO 26-32 drive the SPI flash and PSRAM. The board would crash.',
+      };
     }
-    if (gpio === 0) return { level: 'block', reason: 'GPIO 0 is the BOOT button used for user presence.' };
-    if (gpio >= 22 && gpio <= 25) return { level: 'block', reason: 'GPIO 22-25 do not exist on ESP32-S3.' };
+    if (gpio === 0)
+      return {
+        level: 'block',
+        reason: 'GPIO 0 is the BOOT button used for user presence.',
+      };
+    if (gpio >= 22 && gpio <= 25)
+      return { level: 'block', reason: 'GPIO 22-25 do not exist on ESP32-S3.' };
     if (gpio >= 33 && gpio <= 37) {
-      return { level: 'warn', reason: 'GPIO 33-37 are used by octal PSRAM on some modules (N8R8, N16R8).' };
+      return {
+        level: 'warn',
+        reason:
+          'GPIO 33-37 are used by octal PSRAM on some modules (N8R8, N16R8).',
+      };
     }
-    if (gpio === 3 || gpio === 45 || gpio === 46) return { level: 'warn', reason: 'Strapping pin. It may affect boot mode.' };
-    if (gpio === 43 || gpio === 44) return { level: 'warn', reason: 'GPIO 43/44 are the UART0 console pins.' };
+    if (gpio === 3 || gpio === 45 || gpio === 46)
+      return {
+        level: 'warn',
+        reason: 'Strapping pin. It may affect boot mode.',
+      };
+    if (gpio === 43 || gpio === 44)
+      return {
+        level: 'warn',
+        reason: 'GPIO 43/44 are the UART0 console pins.',
+      };
   } else if (mcu === MCU.ESP32S2) {
-    if (gpio > 46) return { level: 'block', reason: 'ESP32-S2 has GPIO 0-46 only.' };
-    if (gpio === 19 || gpio === 20) return { level: 'block', reason: 'GPIO 19/20 are the USB D-/D+ pins.' };
-    if (gpio >= 26 && gpio <= 32) return { level: 'block', reason: 'GPIO 26-32 drive the SPI flash and PSRAM.' };
-    if (gpio === 0) return { level: 'block', reason: 'GPIO 0 is the BOOT button.' };
+    if (gpio > 46)
+      return { level: 'block', reason: 'ESP32-S2 has GPIO 0-46 only.' };
+    if (gpio === 19 || gpio === 20)
+      return { level: 'block', reason: 'GPIO 19/20 are the USB D-/D+ pins.' };
+    if (gpio >= 26 && gpio <= 32)
+      return {
+        level: 'block',
+        reason: 'GPIO 26-32 drive the SPI flash and PSRAM.',
+      };
+    if (gpio === 0)
+      return { level: 'block', reason: 'GPIO 0 is the BOOT button.' };
   } else if (mcu === MCU.RP2040 && gpio > 29) {
     return { level: 'block', reason: 'RP2040 has GPIO 0-29 only.' };
   } else if (mcu === MCU.RP2350 && gpio > 47) {
@@ -787,49 +878,78 @@ export function reviewPhy(
   const warnings: string[] = [];
 
   const risk = gpioRisk(mcu, after.ledGpio);
-  if (risk?.level === 'block') errors.push(`LED GPIO ${after.ledGpio}: ${risk.reason}`);
-  if (risk?.level === 'warn') warnings.push(`LED GPIO ${after.ledGpio}: ${risk.reason}`);
+  if (risk?.level === 'block')
+    errors.push(`LED GPIO ${after.ledGpio}: ${risk.reason}`);
+  if (risk?.level === 'warn')
+    warnings.push(`LED GPIO ${after.ledGpio}: ${risk.reason}`);
 
   if (after.ledDriver != null && mcu != null && mcu !== MCU.EMULATION) {
     const drv = LED_DRIVERS.find((d) => d.id === after.ledDriver);
-    if (drv?.platform === 'rp' && isEsp(mcu)) errors.push(`LED driver "${drv.name}" is not available on ESP32.`);
-    if (drv?.platform === 'esp' && !isEsp(mcu)) errors.push(`LED driver "${drv.name}" is only available on ESP32.`);
+    if (drv?.platform === 'rp' && isEsp(mcu))
+      errors.push(`LED driver "${drv.name}" is not available on ESP32.`);
+    if (drv?.platform === 'esp' && !isEsp(mcu))
+      errors.push(`LED driver "${drv.name}" is only available on ESP32.`);
   }
 
   const itf = after.usbItf ?? USB_ITF_ALL;
   const prev = before?.usbItf ?? USB_ITF_ALL;
   if (!(itf & USB_ITF_BIT.WCID) && prev & USB_ITF_BIT.WCID) {
-    warnings.push('WebCCID is disabled. Keyforge will no longer reach the key after replug; only a reflash or a CCID tool can undo it.');
+    warnings.push(
+      'WebCCID is disabled. Keyforge will no longer reach the key after replug; only a reflash or a CCID tool can undo it.'
+    );
   }
   if (!(itf & USB_ITF_BIT.HID) && prev & USB_ITF_BIT.HID) {
-    warnings.push('HID is disabled. Passkeys, FIDO2 and WebAuthn will stop working.');
+    warnings.push(
+      'HID is disabled. Passkeys, FIDO2 and WebAuthn will stop working.'
+    );
   }
   if (!(itf & USB_ITF_BIT.CCID) && prev & USB_ITF_BIT.CCID) {
-    warnings.push('CCID is disabled. OpenPGP, PIV and OATH smart-card tools will stop working.');
+    warnings.push(
+      'CCID is disabled. OpenPGP, PIV and OATH smart-card tools will stop working.'
+    );
   }
-  if (after.vid !== (before?.vid ?? null) || after.pid !== (before?.pid ?? null)) {
-    warnings.push('USB VID/PID changes. Only use IDs you are allowed to use, and never distribute devices with VID/PIDs you do not own.');
+  if (
+    after.vid !== (before?.vid ?? null) ||
+    after.pid !== (before?.pid ?? null)
+  ) {
+    warnings.push(
+      'USB VID/PID changes. Only use IDs you are allowed to use, and never distribute devices with VID/PIDs you do not own.'
+    );
   }
-  if (after.ledDriver === 0xff) warnings.push('LED driver "None": the status LED will stay dark.');
-  if (after.ledBrightness === 0) warnings.push('Brightness 0: the status LED will stay dark.');
+  if (after.ledDriver === 0xff)
+    warnings.push('LED driver "None": the status LED will stay dark.');
+  if (after.ledBrightness === 0)
+    warnings.push('Brightness 0: the status LED will stay dark.');
   if ((before?.upBtn ?? 0) > 0 && !((after.upBtn ?? 0) > 0)) {
-    warnings.push('BOOT-button confirmation is turned off. Operations will be approved without a physical press.');
+    warnings.push(
+      'BOOT-button confirmation is turned off. Operations will be approved without a physical press.'
+    );
   }
   if (after.curves != null && !(after.curves & 0x001)) {
-    warnings.push('secp256r1 (P-256) is disabled. Most passkeys use ES256 and will fail.');
+    warnings.push(
+      'secp256r1 (P-256) is disabled. Most passkeys use ES256 and will fail.'
+    );
   }
   return { errors, warnings };
 }
 
 export function describePhy(cfg: PhyConfig): [string, string][] {
-  const d = <T,>(v: T | null, f: (x: T) => string = String) => (v == null ? 'default' : f(v));
+  const d = <T>(v: T | null, f: (x: T) => string = String) =>
+    v == null ? 'default' : f(v);
   const bits = (mask: number | null, table: readonly BitOption[]) =>
     mask == null
       ? 'default (all)'
-      : table.filter((t) => mask & t.bit).map((t) => t.name.split(' (')[0]).join(', ') || 'none';
-  const drv = (id: number) => LED_DRIVERS.find((x) => x.id === id)?.name ?? `0x${id.toString(16)}`;
+      : table
+          .filter((t) => mask & t.bit)
+          .map((t) => t.name.split(' (')[0])
+          .join(', ') || 'none';
+  const drv = (id: number) =>
+    LED_DRIVERS.find((x) => x.id === id)?.name ?? `0x${id.toString(16)}`;
   return [
-    ['USB VID:PID', cfg.vid == null ? 'default' : `${hex16(cfg.vid)}:${hex16(cfg.pid)}`],
+    [
+      'USB VID:PID',
+      cfg.vid == null ? 'default' : `${hex16(cfg.vid)}:${hex16(cfg.pid)}`,
+    ],
     ['USB product name', d(cfg.usbProduct)],
     ['LED driver', d(cfg.ledDriver, drv)],
     ['LED GPIO', d(cfg.ledGpio)],
@@ -837,15 +957,29 @@ export function describePhy(cfg: PhyConfig): [string, string][] {
     ['LED brightness', d(cfg.ledBrightness, (b) => `${b}/${MAX_BRIGHTNESS}`)],
     ['LED dimmable', cfg.opts & PHY_OPT.DIMM ? 'yes' : 'no'],
     ['LED steady', cfg.opts & PHY_OPT.LED_STEADY ? 'yes' : 'no'],
-    ['Power-cycle on reset', cfg.opts & PHY_OPT.DISABLE_POWER_RESET ? 'no' : 'yes'],
-    ['BOOT-button confirmation', cfg.upBtn ? `required, ${cfg.upBtn} s timeout` : 'firmware default'],
+    [
+      'Power-cycle on reset',
+      cfg.opts & PHY_OPT.DISABLE_POWER_RESET ? 'no' : 'yes',
+    ],
+    [
+      'BOOT-button confirmation',
+      cfg.upBtn ? `required, ${cfg.upBtn} s timeout` : 'firmware default',
+    ],
     ['USB interfaces', bits(cfg.usbItf, USB_ITF)],
     ['Curves', bits(cfg.curves, CURVES)],
-    ['Unknown tags', cfg.unknown.length ? cfg.unknown.map((u) => `0x${u.tag.toString(16)}`).join(', ') : 'none'],
+    [
+      'Unknown tags',
+      cfg.unknown.length
+        ? cfg.unknown.map((u) => `0x${u.tag.toString(16)}`).join(', ')
+        : 'none',
+    ],
   ];
 }
 
-export function diffPhy(before: PhyConfig, after: PhyConfig): [string, string, string][] {
+export function diffPhy(
+  before: PhyConfig,
+  after: PhyConfig
+): [string, string, string][] {
   const a = describePhy(before);
   return describePhy(after)
     .map((row, i): [string, string, string] => [row[0], a[i][1], row[1]])

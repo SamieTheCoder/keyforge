@@ -46,7 +46,9 @@ export interface WebCcidInterface {
   packetSize: number;
 }
 
-export function findWebCcidInterface(device: USBDevice): WebCcidInterface | null {
+export function findWebCcidInterface(
+  device: USBDevice
+): WebCcidInterface | null {
   const config = device.configuration ?? device.configurations?.[0];
   if (!config) return null;
   for (const itf of config.interfaces) {
@@ -62,8 +64,12 @@ export function findWebCcidInterface(device: USBDevice): WebCcidInterface | null
       ) {
         continue;
       }
-      const bulkIn = alt.endpoints.find((e) => e.type === 'bulk' && e.direction === 'in');
-      const bulkOut = alt.endpoints.find((e) => e.type === 'bulk' && e.direction === 'out');
+      const bulkIn = alt.endpoints.find(
+        (e) => e.type === 'bulk' && e.direction === 'in'
+      );
+      const bulkOut = alt.endpoints.find(
+        (e) => e.type === 'bulk' && e.direction === 'out'
+      );
       if (bulkIn && bulkOut) {
         return {
           interfaceNumber: itf.interfaceNumber,
@@ -114,7 +120,7 @@ export class CcidTransport {
     const itf = findWebCcidInterface(d);
     if (!itf) {
       throw new Error(
-        'This device has no WebCCID interface. Make sure it runs pico-fido and that the WebCCID USB interface is enabled.'
+        'This device has no WebCCID interface. Make sure it runs Keyforge firmware and that the WebCCID USB interface is enabled.'
       );
     }
     try {
@@ -125,11 +131,21 @@ export class CcidTransport {
       );
     }
     if (itf.alternateSetting !== 0) {
-      await d.selectAlternateInterface(itf.interfaceNumber, itf.alternateSetting);
+      await d.selectAlternateInterface(
+        itf.interfaceNumber,
+        itf.alternateSetting
+      );
     }
     this.itf = itf;
-    this.log('info', `Claimed interface ${itf.interfaceNumber}${itf.name ? ` "${itf.name}"` : ''}`);
-    const atr = await this.exchange(CCID.PC_TO_RDR_ICC_POWER_ON, new Uint8Array(0), DEFAULT_TIMEOUT_MS);
+    this.log(
+      'info',
+      `Claimed interface ${itf.interfaceNumber}${itf.name ? ` "${itf.name}"` : ''}`
+    );
+    const atr = await this.exchange(
+      CCID.PC_TO_RDR_ICC_POWER_ON,
+      new Uint8Array(0),
+      DEFAULT_TIMEOUT_MS
+    );
     this.log('info', `ATR ${toHex(atr)}`);
   }
 
@@ -138,7 +154,9 @@ export class CcidTransport {
     this.closed = true;
     try {
       if (this.device.opened && this.itf) {
-        await this.device.releaseInterface(this.itf.interfaceNumber).catch(() => {});
+        await this.device
+          .releaseInterface(this.itf.interfaceNumber)
+          .catch(() => {});
       }
       if (this.device.opened) await this.device.close();
     } catch {
@@ -149,19 +167,31 @@ export class CcidTransport {
   /** Send one APDU, follow 61xx chains. Calls are serialized. */
   transmit(
     apdu: Uint8Array,
-    { timeoutMs = DEFAULT_TIMEOUT_MS, note }: { timeoutMs?: number; note?: string } = {}
+    {
+      timeoutMs = DEFAULT_TIMEOUT_MS,
+      note,
+    }: { timeoutMs?: number; note?: string } = {}
   ): Promise<{ data: Uint8Array; sw: number }> {
     const run = async () => {
       this.log('tx', `→ ${toHex(apdu)}${note ? `   (${note})` : ''}`);
-      let resp = parseResponse(await this.exchange(CCID.PC_TO_RDR_XFR_BLOCK, apdu, timeoutMs));
+      let resp = parseResponse(
+        await this.exchange(CCID.PC_TO_RDR_XFR_BLOCK, apdu, timeoutMs)
+      );
       let data = resp.data;
       while (resp.sw1 === 0x61) {
         resp = parseResponse(
-          await this.exchange(CCID.PC_TO_RDR_XFR_BLOCK, APDU.getResponse(resp.sw2), timeoutMs)
+          await this.exchange(
+            CCID.PC_TO_RDR_XFR_BLOCK,
+            APDU.getResponse(resp.sw2),
+            timeoutMs
+          )
         );
         data = concat(data, resp.data);
       }
-      this.log('rx', `← ${toHex(concat(data, Uint8Array.of(resp.sw1, resp.sw2)))}`);
+      this.log(
+        'rx',
+        `← ${toHex(concat(data, Uint8Array.of(resp.sw1, resp.sw2)))}`
+      );
       return { data, sw: resp.sw };
     };
     const p = this.queue.then(run, run);
@@ -169,15 +199,26 @@ export class CcidTransport {
     return p;
   }
 
-  private async exchange(type: number, payload: Uint8Array, timeoutMs: number): Promise<Uint8Array> {
+  private async exchange(
+    type: number,
+    payload: Uint8Array,
+    timeoutMs: number
+  ): Promise<Uint8Array> {
     if (this.closed || !this.itf) throw new Error('Device is closed');
     const seq = this.seq;
     this.seq = (this.seq + 1) & 0xff;
-    await this.device.transferOut(this.itf.epOut, buildCcid(type, seq, payload) as BufferSource);
+    await this.device.transferOut(
+      this.itf.epOut,
+      buildCcid(type, seq, payload) as BufferSource
+    );
     let timer: ReturnType<typeof setTimeout> | undefined;
     const timeout = new Promise<never>((_, reject) => {
       timer = setTimeout(() => {
-        reject(new TimeoutError(`No response from the key within ${Math.round(timeoutMs / 1000)} s`));
+        reject(
+          new TimeoutError(
+            `No response from the key within ${Math.round(timeoutMs / 1000)} s`
+          )
+        );
         // A pending transferIn cannot be cancelled; closing is the only way out.
         void this.close();
       }, timeoutMs);
@@ -195,19 +236,27 @@ export class CcidTransport {
       const msg = await this.readMessage();
       const h = parseCcidHeader(msg)!;
       if (h.seq !== seq) {
-        this.log('info', `Discarding stale CCID frame (seq ${h.seq}, expected ${seq})`);
+        this.log(
+          'info',
+          `Discarding stale CCID frame (seq ${h.seq}, expected ${seq})`
+        );
         continue;
       }
       const status = ccidCommandStatus(h);
       if (status === 'time-extension') {
         if (!notified) {
           notified = true;
-          this.log('wait', 'Key is busy. If the LED blinks yellow, press the BOOT button to confirm.');
+          this.log(
+            'wait',
+            'Key is busy. If the LED blinks yellow, press the BOOT button to confirm.'
+          );
         }
         continue;
       }
       if (status === 'failed') {
-        throw new Error(`CCID command failed (bStatus 0x${h.status.toString(16)}, bError 0x${h.error.toString(16)})`);
+        throw new Error(
+          `CCID command failed (bStatus 0x${h.status.toString(16)}, bError 0x${h.error.toString(16)})`
+        );
       }
       return msg.slice(CCID.HEADER_SIZE, h.totalLength);
     }
@@ -224,7 +273,10 @@ export class CcidTransport {
       }
       if (r.status === 'babble') throw new Error('USB babble error');
       if (!r.data || r.data.byteLength === 0) continue;
-      buf = concat(buf, new Uint8Array(r.data.buffer, r.data.byteOffset, r.data.byteLength));
+      buf = concat(
+        buf,
+        new Uint8Array(r.data.buffer, r.data.byteOffset, r.data.byteLength)
+      );
       const h = parseCcidHeader(buf);
       if (h && buf.length >= h.totalLength) return buf;
     }
@@ -247,7 +299,9 @@ export class RescueSession {
   }
 
   async select() {
-    this.info = parseSelect(await this.call(APDU.selectRescue(), 'Select rescue applet'));
+    this.info = parseSelect(
+      await this.call(APDU.selectRescue(), 'Select rescue applet')
+    );
     return this.info;
   }
 
@@ -257,11 +311,15 @@ export class RescueSession {
   }
 
   async readFlashInfo() {
-    return parseFlashInfo(await this.call(APDU.readFlashInfo(), 'Read flash info'));
+    return parseFlashInfo(
+      await this.call(APDU.readFlashInfo(), 'Read flash info')
+    );
   }
 
   async readSecureBoot() {
-    const r = await this.t.transmit(APDU.readSecureBoot(), { note: 'Read secure boot status' });
+    const r = await this.t.transmit(APDU.readSecureBoot(), {
+      note: 'Read secure boot status',
+    });
     if (r.sw !== 0x9000 || r.data.length < 3) return null;
     return parseSecureBoot(r.data);
   }
@@ -269,7 +327,11 @@ export class RescueSession {
   /** Firmware replaces the whole record, so pass every field to keep. Needs a BOOT press. */
   async writePhy(config: PhyConfig) {
     const tlv = serializePhy(config);
-    await this.call(APDU.writePhy(tlv), 'Write configuration', PRESENCE_TIMEOUT_MS);
+    await this.call(
+      APDU.writePhy(tlv),
+      'Write configuration',
+      PRESENCE_TIMEOUT_MS
+    );
     return tlv;
   }
 

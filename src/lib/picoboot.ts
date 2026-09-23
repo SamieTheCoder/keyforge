@@ -64,7 +64,13 @@ export class PicobootError extends Error {
 }
 
 /** 32-byte PICOBOOT command packet (pure, unit tested). */
-export function buildCommand(token: number, cmdId: number, cmdSize: number, transferLen: number, args?: Uint8Array): Uint8Array {
+export function buildCommand(
+  token: number,
+  cmdId: number,
+  cmdSize: number,
+  transferLen: number,
+  args?: Uint8Array
+): Uint8Array {
   const out = new Uint8Array(32);
   const v = new DataView(out.buffer);
   v.setUint32(0, MAGIC, true);
@@ -83,7 +89,8 @@ function words(...w: number[]): Uint8Array {
   return a;
 }
 
-export const chipForPid = (pid: number): RpChip | null => (pid === 0x0003 ? 'RP2040' : pid === 0x000f ? 'RP2350' : null);
+export const chipForPid = (pid: number): RpChip | null =>
+  pid === 0x0003 ? 'RP2040' : pid === 0x000f ? 'RP2350' : null;
 
 export class Picoboot {
   private token = 1;
@@ -98,9 +105,14 @@ export class Picoboot {
   ) {}
 
   static async request(): Promise<Picoboot> {
-    const device = await navigator.usb.requestDevice({ filters: PICOBOOT_FILTERS });
+    const device = await navigator.usb.requestDevice({
+      filters: PICOBOOT_FILTERS,
+    });
     const chip = chipForPid(device.productId);
-    if (!chip) throw new PicobootError('That is not an RP2040 or RP2350 in BOOTSEL mode.');
+    if (!chip)
+      throw new PicobootError(
+        'That is not an RP2040 or RP2350 in BOOTSEL mode.'
+      );
     try {
       const p = new Picoboot(device, chip);
       await p.open();
@@ -122,10 +134,16 @@ export class Picoboot {
     const ifaces = d.configuration!.interfaces;
     // The bootrom puts PICOBOOT on interface 1 when mass storage is enabled, else 0.
     for (const iface of ifaces) {
-      const alt = iface.alternates.find((a) => a.interfaceClass === 0xff && a.interfaceSubclass === 0x00);
+      const alt = iface.alternates.find(
+        (a) => a.interfaceClass === 0xff && a.interfaceSubclass === 0x00
+      );
       if (!alt) continue;
-      const bin = alt.endpoints.find((e) => e.type === 'bulk' && e.direction === 'in');
-      const bout = alt.endpoints.find((e) => e.type === 'bulk' && e.direction === 'out');
+      const bin = alt.endpoints.find(
+        (e) => e.type === 'bulk' && e.direction === 'in'
+      );
+      const bout = alt.endpoints.find(
+        (e) => e.type === 'bulk' && e.direction === 'out'
+      );
       if (!bin || !bout) continue;
       this.ifNum = iface.interfaceNumber;
       this.inEp = bin.endpointNumber;
@@ -133,7 +151,10 @@ export class Picoboot {
       this.packet = bin.packetSize || 64;
       break;
     }
-    if (this.ifNum < 0) throw new PicobootError('The board has no PICOBOOT interface. Is it in BOOTSEL mode?');
+    if (this.ifNum < 0)
+      throw new PicobootError(
+        'The board has no PICOBOOT interface. Is it in BOOTSEL mode?'
+      );
     try {
       await d.claimInterface(this.ifNum);
     } catch (e) {
@@ -161,13 +182,25 @@ export class Picoboot {
   }
 
   private async resetInterface() {
-    await this.device.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request: REQ_RESET, value: 0, index: this.ifNum });
+    await this.device.controlTransferOut({
+      requestType: 'vendor',
+      recipient: 'interface',
+      request: REQ_RESET,
+      value: 0,
+      index: this.ifNum,
+    });
   }
 
   private async status(): Promise<string> {
     try {
       const r = await this.device.controlTransferIn(
-        { requestType: 'vendor', recipient: 'interface', request: REQ_STATUS, value: 0, index: this.ifNum },
+        {
+          requestType: 'vendor',
+          recipient: 'interface',
+          request: REQ_STATUS,
+          value: 0,
+          index: this.ifNum,
+        },
         16
       );
       if (r.status !== 'ok' || !r.data) return 'no status';
@@ -179,38 +212,69 @@ export class Picoboot {
   }
 
   /** Command, optional data phase, then the zero-length ack in the opposite direction. */
-  private async send(name: string, cmdId: number, cmdSize: number, args: Uint8Array, data?: Uint8Array, readLen = 0): Promise<Uint8Array> {
+  private async send(
+    name: string,
+    cmdId: number,
+    cmdSize: number,
+    args: Uint8Array,
+    data?: Uint8Array,
+    readLen = 0
+  ): Promise<Uint8Array> {
     const isIn = (cmdId & 0x80) !== 0;
     const transferLen = isIn ? readLen : (data?.length ?? 0);
     const d = this.device;
     try {
-      const w = await d.transferOut(this.outEp, buildCommand(this.token++, cmdId, cmdSize, transferLen, args) as BufferSource);
+      const w = await d.transferOut(
+        this.outEp,
+        buildCommand(
+          this.token++,
+          cmdId,
+          cmdSize,
+          transferLen,
+          args
+        ) as BufferSource
+      );
       if (w.status !== 'ok') throw new Error(w.status);
       let result: Uint8Array = new Uint8Array(0);
       if (isIn && readLen) {
         const len = Math.ceil(readLen / this.packet) * this.packet;
         const r = await d.transferIn(this.inEp, len);
-        if (r.status !== 'ok' || !r.data) throw new Error(r.status ?? 'no data');
-        result = new Uint8Array(r.data.buffer, r.data.byteOffset, r.data.byteLength).slice(0, readLen);
-        if (result.length < readLen) throw new Error(`short read (${result.length} of ${readLen} bytes)`);
+        if (r.status !== 'ok' || !r.data)
+          throw new Error(r.status ?? 'no data');
+        result = new Uint8Array(
+          r.data.buffer,
+          r.data.byteOffset,
+          r.data.byteLength
+        ).slice(0, readLen);
+        if (result.length < readLen)
+          throw new Error(`short read (${result.length} of ${readLen} bytes)`);
       } else if (!isIn && data?.length) {
         const r = await d.transferOut(this.outEp, data as BufferSource);
-        if (r.status !== 'ok' || r.bytesWritten !== data.length) throw new Error(r.status);
+        if (r.status !== 'ok' || r.bytesWritten !== data.length)
+          throw new Error(r.status);
       }
       // Ack in the opposite direction. picoflash sends one byte for the IN ack; mirror that.
-      if (isIn) await d.transferOut(this.outEp, Uint8Array.of(0) as BufferSource);
+      if (isIn)
+        await d.transferOut(this.outEp, Uint8Array.of(0) as BufferSource);
       else await d.transferIn(this.inEp, 1);
       return result;
     } catch (e) {
       const why = await this.status();
       await this.resetInterface().catch(() => {});
-      throw new PicobootError(`${name} failed: ${why} (${(e as Error).message})`);
+      throw new PicobootError(
+        `${name} failed: ${why} (${(e as Error).message})`
+      );
     }
   }
 
   /** 1 = exclusive (the boot drive goes read-only while we write). */
   exclusive(mode: 0 | 1 | 2) {
-    return this.send('Exclusive access', CMD.EXCLUSIVE_ACCESS, 1, Uint8Array.of(mode, ...new Uint8Array(15)));
+    return this.send(
+      'Exclusive access',
+      CMD.EXCLUSIVE_ACCESS,
+      1,
+      Uint8Array.of(mode, ...new Uint8Array(15))
+    );
   }
 
   exitXip() {
@@ -218,17 +282,36 @@ export class Picoboot {
   }
 
   erase(addr: number, size: number) {
-    if (addr % SECTOR || size % SECTOR) throw new PicobootError('Erase must be 4 KiB aligned');
-    return this.send(`Erase 0x${addr.toString(16)}`, CMD.FLASH_ERASE, 8, words(addr, size));
+    if (addr % SECTOR || size % SECTOR)
+      throw new PicobootError('Erase must be 4 KiB aligned');
+    return this.send(
+      `Erase 0x${addr.toString(16)}`,
+      CMD.FLASH_ERASE,
+      8,
+      words(addr, size)
+    );
   }
 
   write(addr: number, data: Uint8Array) {
     if (addr % PAGE) throw new PicobootError('Write must be 256-byte aligned');
-    return this.send(`Write 0x${addr.toString(16)}`, CMD.WRITE, 8, words(addr, data.length), data);
+    return this.send(
+      `Write 0x${addr.toString(16)}`,
+      CMD.WRITE,
+      8,
+      words(addr, data.length),
+      data
+    );
   }
 
   read(addr: number, size: number) {
-    return this.send(`Read 0x${addr.toString(16)}`, CMD.READ, 8, words(addr, size), undefined, size);
+    return this.send(
+      `Read 0x${addr.toString(16)}`,
+      CMD.READ,
+      8,
+      words(addr, size),
+      undefined,
+      size
+    );
   }
 
   /** Raw (non-ECC) OTP rows, 4 bytes each. RP2350 only. */

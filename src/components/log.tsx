@@ -55,7 +55,9 @@ export function LogView({
 }) {
   const ref = useRef<HTMLOListElement>(null);
   const [copied, setCopied] = useState(false);
-  const visible = showApdu ? lines : lines.filter((l) => l.kind !== 'tx' && l.kind !== 'rx');
+  const visible = showApdu
+    ? lines
+    : lines.filter((l) => l.kind !== 'tx' && l.kind !== 'rx');
 
   useEffect(() => {
     const el = ref.current;
@@ -64,7 +66,9 @@ export function LogView({
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(visible.map((l) => `${l.at} ${l.text}`).join('\n'));
+      await navigator.clipboard.writeText(
+        visible.map((l) => `${l.at} ${l.text}`).join('\n')
+      );
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
@@ -79,22 +83,40 @@ export function LogView({
         role="log"
         aria-live="polite"
         tabIndex={0}
-        className={cn('term overflow-auto rounded-[10px] border border-[#1e2626] p-3', height)}
+        className={cn(
+          'term overflow-auto rounded-[10px] border border-[#1e2626] p-3',
+          height
+        )}
       >
-        {visible.length === 0 && <li className="text-[#6b7776]">{emptyText}</li>}
+        {visible.length === 0 && (
+          <li className="text-[#6b7776]">{emptyText}</li>
+        )}
         {visible.map((l) => (
-          <li key={l.id} className={cn('break-all whitespace-pre-wrap', COLOR[l.kind])}>
+          <li
+            key={l.id}
+            className={cn('break-all whitespace-pre-wrap', COLOR[l.kind])}
+          >
             <span className="text-[#5d6a68]">{l.at} </span>
             {l.text}
           </li>
         ))}
       </ol>
       <div className="mt-2 flex justify-end gap-1">
-        <Button variant="ghost" size="sm" onClick={copy} disabled={!visible.length}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={copy}
+          disabled={!visible.length}
+        >
           {copied ? 'Copied' : 'Copy'}
         </Button>
         {onClear && (
-          <Button variant="ghost" size="sm" onClick={onClear} disabled={!lines.length}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClear}
+            disabled={!lines.length}
+          >
             Clear
           </Button>
         )}
@@ -117,10 +139,10 @@ export function Progress({ value, label }: { value: number; label: string }) {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(pct)}
-        className="h-2 overflow-hidden rounded-full bg-sunken"
+        className="bg-sunken h-2 overflow-hidden rounded-full"
       >
         <div
-          className="h-full rounded-full bg-gradient-to-r from-accent-3 via-accent-2 to-accent transition-[width] duration-300"
+          className="from-accent-3 via-accent-2 to-accent h-full rounded-full bg-gradient-to-r transition-[width] duration-300"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -131,8 +153,10 @@ export function Progress({ value, label }: { value: number; label: string }) {
 export function PageIntro({ title, text }: { title: string; text: string }) {
   return (
     <div className="mb-8 max-w-3xl">
-      <h1 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">{title}</h1>
-      <p className="mt-3 text-[15px] leading-relaxed text-muted">{text}</p>
+      <h1 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+        {title}
+      </h1>
+      <p className="text-muted mt-3 text-[15px] leading-relaxed">{text}</p>
     </div>
   );
 }

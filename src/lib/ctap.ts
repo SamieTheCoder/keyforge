@@ -38,7 +38,9 @@ const CTAP_ERRORS: Record<number, string> = {
 export class CtapError extends Error {
   readonly code: number;
   constructor(code: number, context: string) {
-    super(`${context}: ${CTAP_ERRORS[code] ?? `CTAP error 0x${code.toString(16).padStart(2, '0')}`}`);
+    super(
+      `${context}: ${CTAP_ERRORS[code] ?? `CTAP error 0x${code.toString(16).padStart(2, '0')}`}`
+    );
     this.name = 'CtapError';
     this.code = code;
   }
@@ -48,19 +50,36 @@ export class CtapError extends Error {
 /* APDU framing                                                        */
 /* ------------------------------------------------------------------ */
 
-export const FIDO_AID = Uint8Array.of(0xa0, 0x00, 0x00, 0x06, 0x47, 0x2f, 0x00, 0x01);
+export const FIDO_AID = Uint8Array.of(
+  0xa0,
+  0x00,
+  0x00,
+  0x06,
+  0x47,
+  0x2f,
+  0x00,
+  0x01
+);
 const CLA = 0x80;
 const INS_CBOR = 0x10;
 
-export const CTAP = { GET_INFO: 0x04, CLIENT_PIN: 0x06, CRED_MGMT: 0x0a } as const;
+export const CTAP = {
+  GET_INFO: 0x04,
+  CLIENT_PIN: 0x06,
+  CRED_MGMT: 0x0a,
+} as const;
 
 export const selectFidoApdu = () =>
   buildApdu({ cla: 0x00, ins: 0xa4, p1: 0x04, data: FIDO_AID, le: 0 });
 
 /** Short APDU when it fits, extended-length otherwise. */
 export function cborApdu(cmd: number, params?: CborValue): Uint8Array {
-  const body = params === undefined ? Uint8Array.of(cmd) : concat(Uint8Array.of(cmd), cborEncode(params));
-  if (body.length <= 255) return buildApdu({ cla: CLA, ins: INS_CBOR, data: body, le: 0 });
+  const body =
+    params === undefined
+      ? Uint8Array.of(cmd)
+      : concat(Uint8Array.of(cmd), cborEncode(params));
+  if (body.length <= 255)
+    return buildApdu({ cla: CLA, ins: INS_CBOR, data: body, le: 0 });
   if (body.length > 0xffff) throw new Error('CTAP request too large');
   return concat(
     Uint8Array.of(CLA, INS_CBOR, 0, 0, 0, body.length >> 8, body.length & 0xff),
@@ -70,9 +89,17 @@ export function cborApdu(cmd: number, params?: CborValue): Uint8Array {
 }
 
 /** Response data = CTAP status byte + CBOR. SW 64xx carries a CTAP error. */
-export function parseCtapResponse(data: Uint8Array, sw: number, context: string): CborValue | null {
-  if ((sw & 0xff00) === 0x6400 && sw !== 0x6400) throw new CtapError(sw & 0xff, context);
-  if (sw !== 0x9000) throw new Error(`${context}: SW ${sw.toString(16).toUpperCase().padStart(4, '0')}`);
+export function parseCtapResponse(
+  data: Uint8Array,
+  sw: number,
+  context: string
+): CborValue | null {
+  if ((sw & 0xff00) === 0x6400 && sw !== 0x6400)
+    throw new CtapError(sw & 0xff, context);
+  if (sw !== 0x9000)
+    throw new Error(
+      `${context}: SW ${sw.toString(16).toUpperCase().padStart(4, '0')}`
+    );
   if (data.length === 0) return null;
   if (data[0] !== 0) throw new CtapError(data[0], context);
   return data.length > 1 ? cborDecode(data.subarray(1)) : null;
@@ -90,32 +117,66 @@ export async function sha256(data: Uint8Array): Promise<Uint8Array> {
 }
 
 async function aesKey(raw: Uint8Array) {
-  return subtle().importKey('raw', buf(raw), { name: 'AES-CBC' }, false, ['encrypt', 'decrypt']);
+  return subtle().importKey('raw', buf(raw), { name: 'AES-CBC' }, false, [
+    'encrypt',
+    'decrypt',
+  ]);
 }
 
 /** AES-256-CBC, IV = 0, no padding (WebCrypto always pads, so drop the pad block). */
-export async function aesCbcEncryptNoPad(key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
-  if (data.length % 16 !== 0) throw new Error('AES input must be a multiple of 16 bytes');
+export async function aesCbcEncryptNoPad(
+  key: Uint8Array,
+  data: Uint8Array
+): Promise<Uint8Array> {
+  if (data.length % 16 !== 0)
+    throw new Error('AES input must be a multiple of 16 bytes');
   const k = await aesKey(key);
-  const out = new Uint8Array(await subtle().encrypt({ name: 'AES-CBC', iv: new Uint8Array(16) }, k, buf(data)));
+  const out = new Uint8Array(
+    await subtle().encrypt(
+      { name: 'AES-CBC', iv: new Uint8Array(16) },
+      k,
+      buf(data)
+    )
+  );
   return out.slice(0, data.length);
 }
 
 /** Decrypt unpadded AES-256-CBC (IV = 0) by appending a valid PKCS#7 block. */
-export async function aesCbcDecryptNoPad(key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
-  if (data.length === 0 || data.length % 16 !== 0) throw new Error('AES input must be a multiple of 16 bytes');
+export async function aesCbcDecryptNoPad(
+  key: Uint8Array,
+  data: Uint8Array
+): Promise<Uint8Array> {
+  if (data.length === 0 || data.length % 16 !== 0)
+    throw new Error('AES input must be a multiple of 16 bytes');
   const k = await aesKey(key);
   const last = data.slice(data.length - 16);
   // Ciphertext of a full 0x10 padding block chained after `last`.
   const padBlock = new Uint8Array(
-    await subtle().encrypt({ name: 'AES-CBC', iv: buf(last) }, k, buf(new Uint8Array(16).fill(16)))
+    await subtle().encrypt(
+      { name: 'AES-CBC', iv: buf(last) },
+      k,
+      buf(new Uint8Array(16).fill(16))
+    )
   ).slice(0, 16);
-  const out = await subtle().decrypt({ name: 'AES-CBC', iv: new Uint8Array(16) }, k, buf(concat(data, padBlock)));
+  const out = await subtle().decrypt(
+    { name: 'AES-CBC', iv: new Uint8Array(16) },
+    k,
+    buf(concat(data, padBlock))
+  );
   return new Uint8Array(out);
 }
 
-export async function hmac16(key: Uint8Array, msg: Uint8Array): Promise<Uint8Array> {
-  const k = await subtle().importKey('raw', buf(key), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+export async function hmac16(
+  key: Uint8Array,
+  msg: Uint8Array
+): Promise<Uint8Array> {
+  const k = await subtle().importKey(
+    'raw',
+    buf(key),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
   return new Uint8Array(await subtle().sign('HMAC', k, buf(msg))).slice(0, 16);
 }
 
@@ -137,13 +198,32 @@ export interface KeyAgreement {
 }
 
 /** ECDH P-256 with the authenticator's key-agreement key (protocol 1). */
-export async function deriveShared(authenticatorCose: Map<CborValue, CborValue>): Promise<KeyAgreement> {
+export async function deriveShared(
+  authenticatorCose: Map<CborValue, CborValue>
+): Promise<KeyAgreement> {
   const x = get.bytes(authenticatorCose, -2);
   const y = get.bytes(authenticatorCose, -3);
-  if (!x || !y || x.length !== 32 || y.length !== 32) throw new Error('Key returned an invalid key-agreement key');
-  const peer = await subtle().importKey('raw', buf(concat(Uint8Array.of(4), x, y)), { name: 'ECDH', namedCurve: 'P-256' }, false, []);
-  const mine = await subtle().generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
-  const z = new Uint8Array(await subtle().deriveBits({ name: 'ECDH', public: peer }, mine.privateKey, 256));
+  if (!x || !y || x.length !== 32 || y.length !== 32)
+    throw new Error('Key returned an invalid key-agreement key');
+  const peer = await subtle().importKey(
+    'raw',
+    buf(concat(Uint8Array.of(4), x, y)),
+    { name: 'ECDH', namedCurve: 'P-256' },
+    false,
+    []
+  );
+  const mine = await subtle().generateKey(
+    { name: 'ECDH', namedCurve: 'P-256' },
+    true,
+    ['deriveBits']
+  );
+  const z = new Uint8Array(
+    await subtle().deriveBits(
+      { name: 'ECDH', public: peer },
+      mine.privateKey,
+      256
+    )
+  );
   const pub = new Uint8Array(await subtle().exportKey('raw', mine.publicKey));
   const platformKey = new Map<CborValue, CborValue>([
     [1, 2],
@@ -159,7 +239,13 @@ export async function deriveShared(authenticatorCose: Map<CborValue, CborValue>)
 /* Request builders (pure, unit tested)                                */
 /* ------------------------------------------------------------------ */
 
-export const PIN = { RETRIES: 0x01, KEY_AGREEMENT: 0x02, SET: 0x03, CHANGE: 0x04, TOKEN_WITH_PERMISSIONS: 0x09 } as const;
+export const PIN = {
+  RETRIES: 0x01,
+  KEY_AGREEMENT: 0x02,
+  SET: 0x03,
+  CHANGE: 0x04,
+  TOKEN_WITH_PERMISSIONS: 0x09,
+} as const;
 export const PERM_CREDENTIAL_MGMT = 0x04;
 
 export const CM = {
@@ -183,10 +269,17 @@ export async function setPinParams(ka: KeyAgreement, pin: string) {
 }
 
 export async function pinHashEnc(ka: KeyAgreement, pin: string) {
-  return aesCbcEncryptNoPad(ka.shared, (await sha256(new TextEncoder().encode(pin))).slice(0, 16));
+  return aesCbcEncryptNoPad(
+    ka.shared,
+    (await sha256(new TextEncoder().encode(pin))).slice(0, 16)
+  );
 }
 
-export async function changePinParams(ka: KeyAgreement, current: string, next: string) {
+export async function changePinParams(
+  ka: KeyAgreement,
+  current: string,
+  next: string
+) {
   const newPinEnc = await aesCbcEncryptNoPad(ka.shared, padPin(next));
   const hashEnc = await pinHashEnc(ka, current);
   return new Map<CborValue, CborValue>([
@@ -199,7 +292,11 @@ export async function changePinParams(ka: KeyAgreement, current: string, next: s
   ]);
 }
 
-export async function tokenParams(ka: KeyAgreement, pin: string, permissions: number) {
+export async function tokenParams(
+  ka: KeyAgreement,
+  pin: string,
+  permissions: number
+) {
   return new Map<CborValue, CborValue>([
     [1, 1],
     [2, PIN.TOKEN_WITH_PERMISSIONS],
@@ -210,11 +307,17 @@ export async function tokenParams(ka: KeyAgreement, pin: string, permissions: nu
 }
 
 /** CredentialManagement request; authenticated subcommands get pinUvAuthParam. */
-export async function credMgmtParams(subCommand: number, sub?: Map<CborValue, CborValue>, token?: Uint8Array) {
+export async function credMgmtParams(
+  subCommand: number,
+  sub?: Map<CborValue, CborValue>,
+  token?: Uint8Array
+) {
   const m = new Map<CborValue, CborValue>([[1, subCommand]]);
   if (sub) m.set(2, sub);
   if (token) {
-    const msg = sub ? concat(Uint8Array.of(subCommand), cborEncode(sub)) : Uint8Array.of(subCommand);
+    const msg = sub
+      ? concat(Uint8Array.of(subCommand), cborEncode(sub))
+      : Uint8Array.of(subCommand);
     m.set(3, 1);
     m.set(4, await hmac16(token, msg));
   }
@@ -238,10 +341,14 @@ export interface AuthenticatorInfo {
 export function parseInfo(m: CborValue | null): AuthenticatorInfo {
   const opts = get.map(m ?? undefined, 4);
   return {
-    versions: (get.arr(m ?? undefined, 1) ?? []).filter((v): v is string => typeof v === 'string'),
+    versions: (get.arr(m ?? undefined, 1) ?? []).filter(
+      (v): v is string => typeof v === 'string'
+    ),
     aaguid: toHex(get.bytes(m ?? undefined, 3) ?? new Uint8Array(0), ''),
     pinSet: get.bool(opts, 'clientPin') ?? null,
-    credMgmt: !!(get.bool(opts, 'credMgmt') ?? get.bool(opts, 'credentialMgmtPreview')),
+    credMgmt: !!(
+      get.bool(opts, 'credMgmt') ?? get.bool(opts, 'credentialMgmtPreview')
+    ),
     minPinLength: get.num(m ?? undefined, 0x0d) ?? 4,
     firmware: get.num(m ?? undefined, 0x0e) ?? null,
     remainingCreds: get.num(m ?? undefined, 0x14) ?? null,
@@ -282,7 +389,10 @@ export function parseCredential(m: CborValue | null): Passkey {
 /* ------------------------------------------------------------------ */
 
 export interface ApduTransport {
-  transmit(apdu: Uint8Array, opts?: { note?: string; timeoutMs?: number }): Promise<{ data: Uint8Array; sw: number }>;
+  transmit(
+    apdu: Uint8Array,
+    opts?: { note?: string; timeoutMs?: number }
+  ): Promise<{ data: Uint8Array; sw: number }>;
 }
 
 export class FidoSession {
@@ -291,11 +401,20 @@ export class FidoSession {
   constructor(private t: ApduTransport) {}
 
   async select() {
-    const r = await this.t.transmit(selectFidoApdu(), { note: 'Select FIDO applet' });
-    if (r.sw !== 0x9000) throw new Error('This key does not expose the FIDO applet over USB smart-card (CCID).');
+    const r = await this.t.transmit(selectFidoApdu(), {
+      note: 'Select FIDO applet',
+    });
+    if (r.sw !== 0x9000)
+      throw new Error(
+        'This key does not expose the FIDO applet over USB smart-card (CCID).'
+      );
   }
 
-  private async call(cmd: number, params: CborValue | undefined, context: string) {
+  private async call(
+    cmd: number,
+    params: CborValue | undefined,
+    context: string
+  ) {
     const r = await this.t.transmit(cborApdu(cmd, params), { note: context });
     return parseCtapResponse(r.data, r.sw, context);
   }
@@ -305,30 +424,56 @@ export class FidoSession {
   }
 
   async pinRetries(): Promise<number | null> {
-    const r = await this.call(CTAP.CLIENT_PIN, new Map<CborValue, CborValue>([[1, 1], [2, PIN.RETRIES]]), 'PIN retries');
+    const r = await this.call(
+      CTAP.CLIENT_PIN,
+      new Map<CborValue, CborValue>([
+        [1, 1],
+        [2, PIN.RETRIES],
+      ]),
+      'PIN retries'
+    );
     return get.num(r ?? undefined, 3) ?? null;
   }
 
   private async keyAgreement(): Promise<KeyAgreement> {
-    const r = await this.call(CTAP.CLIENT_PIN, new Map<CborValue, CborValue>([[1, 1], [2, PIN.KEY_AGREEMENT]]), 'Key agreement');
+    const r = await this.call(
+      CTAP.CLIENT_PIN,
+      new Map<CborValue, CborValue>([
+        [1, 1],
+        [2, PIN.KEY_AGREEMENT],
+      ]),
+      'Key agreement'
+    );
     const cose = get.map(r ?? undefined, 1);
     if (!cose) throw new Error('Key did not return a key-agreement key');
     return deriveShared(cose);
   }
 
   async setPin(pin: string) {
-    await this.call(CTAP.CLIENT_PIN, await setPinParams(await this.keyAgreement(), pin), 'Set PIN');
+    await this.call(
+      CTAP.CLIENT_PIN,
+      await setPinParams(await this.keyAgreement(), pin),
+      'Set PIN'
+    );
   }
 
   async changePin(current: string, next: string) {
-    await this.call(CTAP.CLIENT_PIN, await changePinParams(await this.keyAgreement(), current, next), 'Change PIN');
+    await this.call(
+      CTAP.CLIENT_PIN,
+      await changePinParams(await this.keyAgreement(), current, next),
+      'Change PIN'
+    );
     this.token = null;
   }
 
   /** Get a credential-management token. The PIN itself never leaves this tab unencrypted. */
   async unlock(pin: string) {
     const ka = await this.keyAgreement();
-    const r = await this.call(CTAP.CLIENT_PIN, await tokenParams(ka, pin, PERM_CREDENTIAL_MGMT), 'Unlock');
+    const r = await this.call(
+      CTAP.CLIENT_PIN,
+      await tokenParams(ka, pin, PERM_CREDENTIAL_MGMT),
+      'Unlock'
+    );
     const enc = get.bytes(r ?? undefined, 2);
     if (!enc) throw new Error('Key did not return a PIN token');
     this.token = await aesCbcDecryptNoPad(ka.shared, enc);
@@ -348,15 +493,26 @@ export class FidoSession {
   }
 
   async metadata(): Promise<{ existing: number; remaining: number }> {
-    const r = await this.call(CTAP.CRED_MGMT, await credMgmtParams(CM.METADATA, undefined, this.need()), 'Storage info');
-    return { existing: get.num(r ?? undefined, 1) ?? 0, remaining: get.num(r ?? undefined, 2) ?? 0 };
+    const r = await this.call(
+      CTAP.CRED_MGMT,
+      await credMgmtParams(CM.METADATA, undefined, this.need()),
+      'Storage info'
+    );
+    return {
+      existing: get.num(r ?? undefined, 1) ?? 0,
+      remaining: get.num(r ?? undefined, 2) ?? 0,
+    };
   }
 
   async listPasskeys(): Promise<RelyingParty[]> {
     const token = this.need();
     let first: CborValue | null;
     try {
-      first = await this.call(CTAP.CRED_MGMT, await credMgmtParams(CM.RPS_BEGIN, undefined, token), 'List sites');
+      first = await this.call(
+        CTAP.CRED_MGMT,
+        await credMgmtParams(CM.RPS_BEGIN, undefined, token),
+        'List sites'
+      );
     } catch (e) {
       if (e instanceof CtapError && e.code === 0x2e) return [];
       throw e;
@@ -365,19 +521,41 @@ export class FidoSession {
     const rps: RelyingParty[] = [];
     let cur = first;
     for (let i = 0; i < total; i++) {
-      if (i > 0) cur = await this.call(CTAP.CRED_MGMT, await credMgmtParams(CM.RPS_NEXT), 'Next site');
+      if (i > 0)
+        cur = await this.call(
+          CTAP.CRED_MGMT,
+          await credMgmtParams(CM.RPS_NEXT),
+          'Next site'
+        );
       const rp = get.map(cur ?? undefined, 3);
       const hash = get.bytes(cur ?? undefined, 4);
       if (!hash) continue;
-      rps.push({ id: get.str(rp, 'id') ?? '(unknown site)', name: get.str(rp, 'name') ?? null, rpIdHash: hash, passkeys: [] });
+      rps.push({
+        id: get.str(rp, 'id') ?? '(unknown site)',
+        name: get.str(rp, 'name') ?? null,
+        rpIdHash: hash,
+        passkeys: [],
+      });
     }
     for (const rp of rps) {
       const sub = new Map<CborValue, CborValue>([[1, rp.rpIdHash]]);
-      const c0 = await this.call(CTAP.CRED_MGMT, await credMgmtParams(CM.CREDS_BEGIN, sub, token), `List passkeys for ${rp.id}`);
+      const c0 = await this.call(
+        CTAP.CRED_MGMT,
+        await credMgmtParams(CM.CREDS_BEGIN, sub, token),
+        `List passkeys for ${rp.id}`
+      );
       const n = get.num(c0 ?? undefined, 9) ?? 1;
       rp.passkeys.push(parseCredential(c0));
       for (let i = 1; i < n; i++) {
-        rp.passkeys.push(parseCredential(await this.call(CTAP.CRED_MGMT, await credMgmtParams(CM.CREDS_NEXT), 'Next passkey')));
+        rp.passkeys.push(
+          parseCredential(
+            await this.call(
+              CTAP.CRED_MGMT,
+              await credMgmtParams(CM.CREDS_NEXT),
+              'Next passkey'
+            )
+          )
+        );
       }
     }
     return rps;
@@ -385,8 +563,18 @@ export class FidoSession {
 
   async deletePasskey(credentialId: Uint8Array) {
     const sub = new Map<CborValue, CborValue>([
-      [2, new Map<CborValue, CborValue>([['id', credentialId], ['type', 'public-key']])],
+      [
+        2,
+        new Map<CborValue, CborValue>([
+          ['id', credentialId],
+          ['type', 'public-key'],
+        ]),
+      ],
     ]);
-    await this.call(CTAP.CRED_MGMT, await credMgmtParams(CM.DELETE, sub, this.need()), 'Delete passkey');
+    await this.call(
+      CTAP.CRED_MGMT,
+      await credMgmtParams(CM.DELETE, sub, this.need()),
+      'Delete passkey'
+    );
   }
 }

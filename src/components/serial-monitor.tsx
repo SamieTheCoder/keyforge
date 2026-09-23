@@ -1,6 +1,12 @@
 'use client';
 
-import { ArrowClockwise, DownloadSimple, PaperPlaneRight, Plug, PlugsConnected } from '@phosphor-icons/react';
+import {
+  ArrowClockwise,
+  DownloadSimple,
+  PaperPlaneRight,
+  Plug,
+  PlugsConnected,
+} from '@phosphor-icons/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BoardStatusPanel, useBoards } from '@/components/board-status';
 import { LogView, useLog } from '@/components/log';
@@ -61,7 +67,9 @@ export function SerialMonitor() {
     const at = new Date().toLocaleTimeString(undefined, { hour12: false });
     setLines((prev) => {
       const next = [...prev, { id: ++lineSeq, at, text, cls }];
-      return next.length > MAX_LINES ? next.slice(next.length - MAX_LINES) : next;
+      return next.length > MAX_LINES
+        ? next.slice(next.length - MAX_LINES)
+        : next;
     });
   }, []);
 
@@ -108,14 +116,20 @@ export function SerialMonitor() {
           for (;;) {
             const { value, done } = await r.read();
             if (done) break;
-            for (const l of buf.push(decoder.decode(value, { stream: true }))) handleLine(l);
+            for (const l of buf.push(decoder.decode(value, { stream: true })))
+              handleLine(l);
             clearTimeout(idle);
-            if (buf.pending) idle = setTimeout(() => buf.pending && handleLine(buf.flush()), 250);
+            if (buf.pending)
+              idle = setTimeout(
+                () => buf.pending && handleLine(buf.flush()),
+                250
+              );
           }
         } catch (e) {
           const err = e as Error;
           if (err.name === 'NetworkError') break;
-          if (keepReading.current) append(`[read error: ${err.message}]`, 'warn');
+          if (keepReading.current)
+            append(`[read error: ${err.message}]`, 'warn');
         } finally {
           r.releaseLock();
           reader.current = null;
@@ -133,7 +147,9 @@ export function SerialMonitor() {
       const p = await navigator.serial.requestPort();
       await p.open({ baudRate: baud, bufferSize: 8192 });
       const info = p.getInfo();
-      const jtag = info.usbVendorId === ESPRESSIF_VID && info.usbProductId === ESP_USB_JTAG_PID;
+      const jtag =
+        info.usbVendorId === ESPRESSIF_VID &&
+        info.usbProductId === ESP_USB_JTAG_PID;
       port.current = p;
       keepReading.current = true;
       setUsbJtag(jtag);
@@ -168,12 +184,16 @@ export function SerialMonitor() {
         keepReading.current = false;
         void cleanup('device disconnected');
         if (usbJtag) {
-          setHint({ level: 'info', text: 'The bootloader port went away. If Board status now shows a Pico key, the firmware is running.' });
+          setHint({
+            level: 'info',
+            text: 'The bootloader port went away. If Board status now shows a security key, the firmware is running.',
+          });
         }
       }
     };
     navigator.serial.addEventListener('disconnect', onDisconnect);
-    return () => navigator.serial.removeEventListener('disconnect', onDisconnect);
+    return () =>
+      navigator.serial.removeEventListener('disconnect', onDisconnect);
   }, [caps.serial, cleanup, usbJtag]);
 
   useEffect(
@@ -187,7 +207,12 @@ export function SerialMonitor() {
   const reset = async (mode: 'run' | 'download') => {
     const p = port.current;
     if (!p) return;
-    append(mode === 'run' ? '[resetting board to run firmware]' : '[resetting into download mode]', 'sys');
+    append(
+      mode === 'run'
+        ? '[resetting board to run firmware]'
+        : '[resetting into download mode]',
+      'sys'
+    );
     try {
       for (const s of resetSteps(mode, { usbJtag })) {
         await p.setSignals({ dataTerminalReady: s.dtr, requestToSend: s.rts });
@@ -228,7 +253,11 @@ export function SerialMonitor() {
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
       <Panel
         title="Serial monitor"
-        actions={<Pill tone={open ? 'accent' : 'neutral'}>{open ? `Open at ${baud} baud` : 'Closed'}</Pill>}
+        actions={
+          <Pill tone={open ? 'accent' : 'neutral'}>
+            {open ? `Open at ${baud} baud` : 'Closed'}
+          </Pill>
+        }
       >
         {caps.ready && !caps.serial ? (
           <Notice tone="danger" title="Web Serial is not available">
@@ -240,7 +269,13 @@ export function SerialMonitor() {
               <label htmlFor="baud" className="sr-only">
                 Baud rate
               </label>
-              <select id="baud" className="field-input w-32" value={baud} disabled={open} onChange={(e) => setBaud(Number(e.target.value))}>
+              <select
+                id="baud"
+                className="field-input w-32"
+                value={baud}
+                disabled={open}
+                onChange={(e) => setBaud(Number(e.target.value))}
+              >
                 {BAUDS.map((b) => (
                   <option key={b} value={b}>
                     {b}
@@ -256,10 +291,18 @@ export function SerialMonitor() {
                   <PlugsConnected size={16} weight="bold" /> Open port
                 </Button>
               )}
-              <Button onClick={() => reset('run')} disabled={!open} title="Pulse EN so the chip restarts and runs the firmware">
+              <Button
+                onClick={() => reset('run')}
+                disabled={!open}
+                title="Pulse EN so the chip restarts and runs the firmware"
+              >
                 <ArrowClockwise size={16} weight="bold" /> Reset board
               </Button>
-              <Button onClick={() => reset('download')} disabled={!open} title="Restart into the ROM download mode for flashing">
+              <Button
+                onClick={() => reset('download')}
+                disabled={!open}
+                title="Restart into the ROM download mode for flashing"
+              >
                 Download mode
               </Button>
             </div>
@@ -273,8 +316,16 @@ export function SerialMonitor() {
                 className="term h-[460px] overflow-auto rounded-[10px] border border-[#1e2626] px-3 py-2"
               >
                 {lines.map((l) => (
-                  <div key={l.id} className={cn('break-all whitespace-pre-wrap', l.cls && LINE_CLASS[l.cls])}>
-                    {timestamps && <span className="text-[#5d6a68]">{l.at} </span>}
+                  <div
+                    key={l.id}
+                    className={cn(
+                      'break-all whitespace-pre-wrap',
+                      l.cls && LINE_CLASS[l.cls]
+                    )}
+                  >
+                    {timestamps && (
+                      <span className="text-[#5d6a68]">{l.at} </span>
+                    )}
                     {l.text}
                   </div>
                 ))}
@@ -287,12 +338,24 @@ export function SerialMonitor() {
             </div>
 
             {hint && (
-              <Notice tone={hint.level === 'error' ? 'danger' : hint.level === 'warn' ? 'warn' : 'neutral'} className="mt-3">
+              <Notice
+                tone={
+                  hint.level === 'error'
+                    ? 'danger'
+                    : hint.level === 'warn'
+                      ? 'warn'
+                      : 'neutral'
+                }
+                className="mt-3"
+              >
                 {hint.text}
               </Notice>
             )}
 
-            <form onSubmit={send} className="mt-3 grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
+            <form
+              onSubmit={send}
+              className="mt-3 grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2"
+            >
               <label htmlFor="send" className="sr-only">
                 Text to send
               </label>
@@ -309,7 +372,13 @@ export function SerialMonitor() {
               <label htmlFor="eol" className="sr-only">
                 Line ending
               </label>
-              <select id="eol" className="field-input w-24" value={eol} disabled={!open} onChange={(e) => setEol(e.target.value)}>
+              <select
+                id="eol"
+                className="field-input w-24"
+                value={eol}
+                disabled={!open}
+                onChange={(e) => setEol(e.target.value)}
+              >
                 <option value={'\n'}>LF</option>
                 <option value={'\r\n'}>CRLF</option>
                 <option value={'\r'}>CR</option>
@@ -321,22 +390,44 @@ export function SerialMonitor() {
             </form>
 
             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1">
-              <Check label="Timestamps" checked={timestamps} onChange={(e) => setTimestamps(e.target.checked)} />
-              <Check label="Autoscroll" checked={follow} onChange={(e) => setFollow(e.target.checked)} />
+              <Check
+                label="Timestamps"
+                checked={timestamps}
+                onChange={(e) => setTimestamps(e.target.checked)}
+              />
+              <Check
+                label="Autoscroll"
+                checked={follow}
+                onChange={(e) => setFollow(e.target.checked)}
+              />
               <span className="flex-1" />
-              <Button variant="ghost" size="sm" onClick={() => (setLines([]), setHint(null))} disabled={!lines.length}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => (setLines([]), setHint(null))}
+                disabled={!lines.length}
+              >
                 Clear
               </Button>
-              <Button variant="ghost" size="sm" onClick={save} disabled={!lines.length}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={save}
+                disabled={!lines.length}
+              >
                 <DownloadSimple size={14} weight="bold" /> Save log
               </Button>
             </div>
 
-            <details className="mt-5 text-sm text-muted">
-              <summary className="cursor-pointer font-medium text-fg">Why does the port disappear?</summary>
+            <details className="text-muted mt-5 text-sm">
+              <summary className="text-fg cursor-pointer font-medium">
+                Why does the port disappear?
+              </summary>
               <p className="mt-2 leading-relaxed">
-                On ESP32-S3 the USB port belongs to the bootloader until pico-fido starts. When the firmware runs, the serial port closes and
-                the board comes back as a Pico key. That switch is the sign the flash worked. For logs while the firmware runs, wire a
+                On ESP32-S3 the USB port belongs to the bootloader until the
+                firmware starts. When the firmware runs, the serial port closes
+                and the board comes back as a security key. That switch is the
+                sign the flash worked. For logs while the firmware runs, wire a
                 USB-UART adapter to GPIO 43 (TX) and 44 (RX).
               </p>
             </details>
@@ -347,7 +438,12 @@ export function SerialMonitor() {
       <div className="space-y-5 lg:sticky lg:top-24">
         <BoardStatusPanel boards={boards} />
         <Panel title="Activity">
-          <LogView lines={activity.lines} onClear={activity.clear} emptyText="Board changes appear here." height="h-48" />
+          <LogView
+            lines={activity.lines}
+            onClear={activity.clear}
+            emptyText="Board changes appear here."
+            height="h-48"
+          />
         </Panel>
       </div>
     </div>

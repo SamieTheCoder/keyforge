@@ -12,7 +12,10 @@ export function fetchReleases(repo: string): Promise<GithubRelease[]> {
     p = fetch(`https://api.github.com/repos/${repo}/releases?per_page=8`, {
       headers: { Accept: 'application/vnd.github+json' },
     }).then(async (r) => {
-      if (r.status === 403) throw new Error('GitHub rate limit reached. Wait a few minutes or pick a local file.');
+      if (r.status === 403)
+        throw new Error(
+          'GitHub rate limit reached. Wait a few minutes or pick a local file.'
+        );
       if (!r.ok) throw new Error(`GitHub returned ${r.status} for ${repo}.`);
       return (await r.json()) as GithubRelease[];
     });
@@ -30,7 +33,10 @@ export async function downloadFirmware(
 ): Promise<Uint8Array> {
   const q = new URLSearchParams({ repo, tag, name });
   const res = await fetch(`/api/firmware?${q}`);
-  if (!res.ok || !res.body) throw new Error(`Download failed: ${(await res.text().catch(() => '')) || res.status}`);
+  if (!res.ok || !res.body)
+    throw new Error(
+      `Download failed: ${(await res.text().catch(() => '')) || res.status}`
+    );
   const total = Number(res.headers.get('content-length') ?? 0);
   const reader = res.body.getReader();
   const chunks: Uint8Array[] = [];

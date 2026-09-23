@@ -1,4 +1,10 @@
-import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes } from 'node:crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  createHmac,
+  randomBytes,
+} from 'node:crypto';
 import { describe, expect, test } from 'vitest';
 import { cborDecode, cborEncode, type CborValue } from './cbor';
 import {
@@ -36,13 +42,23 @@ describe('CBOR', () => {
   });
 
   test('COSE key encodes in CTAP2 canonical order regardless of insertion order', () => {
-    const k = M([-3, Uint8Array.of(3)], [-1, 1], [3, -25], [1, 2], [-2, Uint8Array.of(2)]);
+    const k = M(
+      [-3, Uint8Array.of(3)],
+      [-1, 1],
+      [3, -25],
+      [1, 2],
+      [-2, Uint8Array.of(2)]
+    );
     // 1, 3, -1, -2, -3 -> keys 01 03 20 21 22
-    expect(hex(cborEncode(k))).toBe('a5' + '0102' + '033818' + '2001' + '214102' + '224103');
+    expect(hex(cborEncode(k))).toBe(
+      'a5' + '0102' + '033818' + '2001' + '214102' + '224103'
+    );
   });
 
   test('text keys sort shorter first', () => {
-    expect(hex(cborEncode(M(['type', 'public-key'], ['id', Uint8Array.of(1)])))).toMatch(/^a262696441/);
+    expect(
+      hex(cborEncode(M(['type', 'public-key'], ['id', Uint8Array.of(1)])))
+    ).toMatch(/^a262696441/);
   });
 
   test('rejects trailing bytes and truncation', () => {
@@ -67,12 +83,17 @@ describe('AES-256-CBC without padding', () => {
   });
 
   test('rejects non-block input', async () => {
-    await expect(aesCbcEncryptNoPad(new Uint8Array(32), new Uint8Array(15))).rejects.toThrow();
+    await expect(
+      aesCbcEncryptNoPad(new Uint8Array(32), new Uint8Array(15))
+    ).rejects.toThrow();
   });
 });
 
 describe('PIN protocol 1', () => {
-  const ka: KeyAgreement = { shared: new Uint8Array(32).fill(7), platformKey: M([1, 2]) };
+  const ka: KeyAgreement = {
+    shared: new Uint8Array(32).fill(7),
+    platformKey: M([1, 2]),
+  };
 
   test('padPin enforces length', () => {
     expect(padPin('1234').length).toBe(64);
@@ -85,21 +106,32 @@ describe('PIN protocol 1', () => {
     const enc = p.get(5) as Uint8Array;
     expect(p.get(2)).toBe(3);
     expect(enc.length).toBe(64);
-    const want = createHmac('sha256', ka.shared).update(enc).digest().subarray(0, 16);
+    const want = createHmac('sha256', ka.shared)
+      .update(enc)
+      .digest()
+      .subarray(0, 16);
     expect(hex(p.get(4) as Uint8Array)).toBe(hex(want));
     const d = createDecipheriv('aes-256-cbc', ka.shared, Buffer.alloc(16));
     d.setAutoPadding(false);
-    expect(Buffer.concat([d.update(enc), d.final()]).subarray(0, 4).toString()).toBe('1234');
+    expect(
+      Buffer.concat([d.update(enc), d.final()])
+        .subarray(0, 4)
+        .toString()
+    ).toBe('1234');
   });
 
   test('changePIN authenticates newPinEnc || pinHashEnc', async () => {
     const p = await changePinParams(ka, '1234', '5678');
     const msg = Buffer.concat([p.get(5) as Uint8Array, p.get(6) as Uint8Array]);
-    expect(hex(p.get(4) as Uint8Array)).toBe(hex(createHmac('sha256', ka.shared).update(msg).digest().subarray(0, 16)));
+    expect(hex(p.get(4) as Uint8Array)).toBe(
+      hex(createHmac('sha256', ka.shared).update(msg).digest().subarray(0, 16))
+    );
     const d = createDecipheriv('aes-256-cbc', ka.shared, Buffer.alloc(16));
     d.setAutoPadding(false);
     const hash = Buffer.concat([d.update(p.get(6) as Uint8Array), d.final()]);
-    expect(hex(hash)).toBe(hex(createHash('sha256').update('1234').digest().subarray(0, 16)));
+    expect(hex(hash)).toBe(
+      hex(createHash('sha256').update('1234').digest().subarray(0, 16))
+    );
   });
 
   test('token request asks for credential-management permission', async () => {
@@ -118,13 +150,33 @@ describe('PIN protocol 1', () => {
   });
 
   test('ECDH derives the same secret as the authenticator would', async () => {
-    const auth = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
-    const raw = new Uint8Array(await crypto.subtle.exportKey('raw', auth.publicKey));
-    const ka = await deriveShared(M([1, 2], [3, -25], [-1, 1], [-2, raw.slice(1, 33)], [-3, raw.slice(33)]));
+    const auth = await crypto.subtle.generateKey(
+      { name: 'ECDH', namedCurve: 'P-256' },
+      true,
+      ['deriveBits']
+    );
+    const raw = new Uint8Array(
+      await crypto.subtle.exportKey('raw', auth.publicKey)
+    );
+    const ka = await deriveShared(
+      M([1, 2], [3, -25], [-1, 1], [-2, raw.slice(1, 33)], [-3, raw.slice(33)])
+    );
     const px = ka.platformKey.get(-2) as Uint8Array;
     const py = ka.platformKey.get(-3) as Uint8Array;
-    const peer = await crypto.subtle.importKey('raw', Uint8Array.from([4, ...px, ...py]), { name: 'ECDH', namedCurve: 'P-256' }, false, []);
-    const z = new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: peer }, auth.privateKey, 256));
+    const peer = await crypto.subtle.importKey(
+      'raw',
+      Uint8Array.from([4, ...px, ...py]),
+      { name: 'ECDH', namedCurve: 'P-256' },
+      false,
+      []
+    );
+    const z = new Uint8Array(
+      await crypto.subtle.deriveBits(
+        { name: 'ECDH', public: peer },
+        auth.privateKey,
+        256
+      )
+    );
     expect(hex(ka.shared)).toBe(hex(createHash('sha256').update(z).digest()));
   });
 });
@@ -140,17 +192,42 @@ describe('framing and parsing', () => {
   });
 
   test('CTAP status mapping', () => {
-    expect(parseCtapResponse(Uint8Array.of(0, 0xa0), 0x9000, 'x')).toEqual(new Map());
-    expect(() => parseCtapResponse(new Uint8Array(0), 0x6431, 'Unlock')).toThrow(/Wrong PIN/);
-    expect(() => parseCtapResponse(Uint8Array.of(0x35), 0x9000, 'x')).toThrow(CtapError);
+    expect(parseCtapResponse(Uint8Array.of(0, 0xa0), 0x9000, 'x')).toEqual(
+      new Map()
+    );
+    expect(() =>
+      parseCtapResponse(new Uint8Array(0), 0x6431, 'Unlock')
+    ).toThrow(/Wrong PIN/);
+    expect(() => parseCtapResponse(Uint8Array.of(0x35), 0x9000, 'x')).toThrow(
+      CtapError
+    );
   });
 
   test('getInfo and credential parsing', () => {
-    const info = parseInfo(M([1, ['FIDO_2_1']], [3, new Uint8Array(16)], [4, M(['clientPin', false], ['credMgmt', true])], [0x0d, 6]));
+    const info = parseInfo(
+      M(
+        [1, ['FIDO_2_1']],
+        [3, new Uint8Array(16)],
+        [4, M(['clientPin', false], ['credMgmt', true])],
+        [0x0d, 6]
+      )
+    );
     expect(info.pinSet).toBe(false);
     expect(info.credMgmt).toBe(true);
     expect(info.minPinLength).toBe(6);
-    const c = parseCredential(M([6, M(['id', Uint8Array.of(1)], ['name', 'ana@example.com'], ['displayName', 'Ana'])], [7, M(['id', Uint8Array.of(9, 9)], ['type', 'public-key'])]));
+    const c = parseCredential(
+      M(
+        [
+          6,
+          M(
+            ['id', Uint8Array.of(1)],
+            ['name', 'ana@example.com'],
+            ['displayName', 'Ana']
+          ),
+        ],
+        [7, M(['id', Uint8Array.of(9, 9)], ['type', 'public-key'])]
+      )
+    );
     expect(c.userName).toBe('ana@example.com');
     expect(hex(c.credentialId)).toBe('0909');
   });

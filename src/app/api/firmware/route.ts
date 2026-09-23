@@ -22,7 +22,10 @@ const MAX_BYTES = 16 * 1024 * 1024;
 function fail(status: number, message: string) {
   return new Response(message, {
     status,
-    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'no-store',
+    },
   });
 }
 
@@ -32,9 +35,12 @@ export async function GET(request: Request) {
   const tag = url.searchParams.get('tag') ?? '';
   const name = url.searchParams.get('name') ?? '';
 
-  if (!ALLOWED_REPOS.has(repo)) return fail(400, 'Unknown firmware repository.');
-  if (!SAFE.test(tag) || !SAFE.test(name)) return fail(400, 'Invalid release tag or file name.');
-  if (!/\.(bin|uf2)$/i.test(name)) return fail(400, 'Only .bin and .uf2 firmware files are served.');
+  if (!ALLOWED_REPOS.has(repo))
+    return fail(400, 'Unknown firmware repository.');
+  if (!SAFE.test(tag) || !SAFE.test(name))
+    return fail(400, 'Invalid release tag or file name.');
+  if (!/\.(bin|uf2)$/i.test(name))
+    return fail(400, 'Only .bin and .uf2 firmware files are served.');
 
   const upstream = `https://github.com/${repo}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(name)}`;
   let res: Response;
@@ -47,10 +53,15 @@ export async function GET(request: Request) {
   } catch {
     return fail(502, 'Could not reach GitHub.');
   }
-  if (!res.ok) return fail(res.status === 404 ? 404 : 502, `GitHub returned ${res.status}.`);
+  if (!res.ok)
+    return fail(
+      res.status === 404 ? 404 : 502,
+      `GitHub returned ${res.status}.`
+    );
 
   const declared = Number(res.headers.get('content-length') ?? '0');
-  if (declared > MAX_BYTES) return fail(413, 'Firmware file is unexpectedly large.');
+  if (declared > MAX_BYTES)
+    return fail(413, 'Firmware file is unexpectedly large.');
 
   // Firmware images are ~1 MiB, so buffer once and send a complete body.
   // (Piping the upstream stream through a TransformStream stalled mid-file.)
@@ -60,7 +71,8 @@ export async function GET(request: Request) {
   } catch {
     return fail(502, 'Download from GitHub was interrupted.');
   }
-  if (body.byteLength > MAX_BYTES) return fail(413, 'Firmware file is unexpectedly large.');
+  if (body.byteLength > MAX_BYTES)
+    return fail(413, 'Firmware file is unexpectedly large.');
 
   return new Response(body, {
     headers: {

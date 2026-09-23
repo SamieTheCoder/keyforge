@@ -54,8 +54,13 @@ export interface EspImageInfo {
 
 export function inspectEspImage(bytes: Uint8Array): EspImageInfo | null {
   for (const offset of [0x0, 0x1000]) {
-    if (bytes.length < offset + 24 || bytes[offset] !== ESP_IMAGE_MAGIC) continue;
-    if (offset === 0x1000 && !bytes.subarray(0, 0x1000).every((b) => b === 0xff)) continue;
+    if (bytes.length < offset + 24 || bytes[offset] !== ESP_IMAGE_MAGIC)
+      continue;
+    if (
+      offset === 0x1000 &&
+      !bytes.subarray(0, 0x1000).every((b) => b === 0xff)
+    )
+      continue;
     const h = bytes.subarray(offset);
     const chipId = h[12] | (h[13] << 8);
     return {
@@ -85,21 +90,31 @@ export interface FlashPlan {
   address: number | null;
 }
 
-export function planEspFlash(image: EspImageInfo | null, connectedChip: string | null): FlashPlan {
+export function planEspFlash(
+  image: EspImageInfo | null,
+  connectedChip: string | null
+): FlashPlan {
   const errors: string[] = [];
   const warnings: string[] = [];
   if (!image) {
-    errors.push('This is not an ESP32 firmware image (no 0xE9 header). Pick the merged .bin from the release.');
+    errors.push(
+      'This is not an ESP32 firmware image (no 0xE9 header). Pick the merged .bin from the release.'
+    );
     return { errors, warnings, address: null };
   }
   const chip = normaliseChip(connectedChip);
   if (chip && image.chip !== chip) {
-    errors.push(`This firmware is built for ${image.chip}, but the connected chip is ${chip}.`);
+    errors.push(
+      `This firmware is built for ${image.chip}, but the connected chip is ${chip}.`
+    );
   }
   if (image.offset === 0 && ESP_BOOTLOADER_OFFSET[image.chip] === 0x1000) {
-    warnings.push(`${image.chip} expects the bootloader at 0x1000. If this file is not a merged image, it will not boot.`);
+    warnings.push(
+      `${image.chip} expects the bootloader at 0x1000. If this file is not a merged image, it will not boot.`
+    );
   }
-  if (image.size < 64 * 1024) warnings.push('The file is unusually small for a full firmware image.');
+  if (image.size < 64 * 1024)
+    warnings.push('The file is unusually small for a full firmware image.');
   return { errors, warnings, address: 0x0 };
 }
 
@@ -148,13 +163,20 @@ export function parseUf2(bytes: Uint8Array): Uf2Info {
   const blocks = bytes.length / UF2.BLOCK;
   for (let i = 0; i < blocks; i++) {
     const o = i * UF2.BLOCK;
-    if (le32(bytes, o) !== UF2.MAGIC0 || le32(bytes, o + 4) !== UF2.MAGIC1 || le32(bytes, o + 508) !== UF2.MAGIC_END) {
-      throw new Error(`Not a valid UF2 file: block ${i} has a bad magic number.`);
+    if (
+      le32(bytes, o) !== UF2.MAGIC0 ||
+      le32(bytes, o + 4) !== UF2.MAGIC1 ||
+      le32(bytes, o + 508) !== UF2.MAGIC_END
+    ) {
+      throw new Error(
+        `Not a valid UF2 file: block ${i} has a bad magic number.`
+      );
     }
     const flags = le32(bytes, o + 8);
     const addr = le32(bytes, o + 12);
     const size = le32(bytes, o + 16);
-    if (size > 476) throw new Error(`Not a valid UF2 file: block ${i} payload is too large.`);
+    if (size > 476)
+      throw new Error(`Not a valid UF2 file: block ${i} payload is too large.`);
     if (flags & UF2.FLAG_FAMILY) {
       const fam = le32(bytes, o + 28);
       families.set(fam, (families.get(fam) ?? 0) + 1);
@@ -168,7 +190,14 @@ export function parseUf2(bytes: Uint8Array): Uf2Info {
     name: UF2_FAMILIES[fid] ?? `unknown (0x${fid.toString(16)})`,
     count,
   }));
-  return { blocks, payload, minAddr, maxAddr, families: list, target: uf2Target(list) };
+  return {
+    blocks,
+    payload,
+    minAddr,
+    maxAddr,
+    families: list,
+    target: uf2Target(list),
+  };
 }
 
 function uf2Target(families: { name: string }[]): string | null {
@@ -182,7 +211,9 @@ function uf2Target(families: { name: string }[]): string | null {
 }
 
 /** INFO_UF2.TXT on the BOOTSEL drive -> chip. */
-export function bootDriveChip(infoText: string | null | undefined): string | null {
+export function bootDriveChip(
+  infoText: string | null | undefined
+): string | null {
   const text = infoText ?? '';
   const board = /Board-ID:\s*(\S+)/i.exec(text)?.[1] ?? '';
   if (/RP2040|RPI-RP2/i.test(board) || /RPI-RP2/.test(text)) return 'RP2040';
@@ -190,11 +221,22 @@ export function bootDriveChip(infoText: string | null | undefined): string | nul
   return board || null;
 }
 
-export function planUf2Copy(info: Uf2Info, driveChip: string | null): { errors: string[] } {
+export function planUf2Copy(
+  info: Uf2Info,
+  driveChip: string | null
+): { errors: string[] } {
   const errors: string[] = [];
-  if (!info.target) errors.push('The UF2 file does not say which chip it is for.');
-  if (driveChip && info.target && info.target !== 'RP2xxx' && info.target !== driveChip) {
-    errors.push(`This firmware is for ${info.target}, but the connected boot drive is ${driveChip}.`);
+  if (!info.target)
+    errors.push('The UF2 file does not say which chip it is for.');
+  if (
+    driveChip &&
+    info.target &&
+    info.target !== 'RP2xxx' &&
+    info.target !== driveChip
+  ) {
+    errors.push(
+      `This firmware is for ${info.target}, but the connected boot drive is ${driveChip}.`
+    );
   }
   return { errors };
 }
@@ -227,10 +269,15 @@ export interface FlashImage {
   signed: boolean | null;
 }
 
-export function uf2ToFlashImage(bytes: Uint8Array, chip: 'RP2040' | 'RP2350'): FlashImage {
+export function uf2ToFlashImage(
+  bytes: Uint8Array,
+  chip: 'RP2040' | 'RP2350'
+): FlashImage {
   parseUf2(bytes); // validates magic and sizes
   const want: number[] =
-    chip === 'RP2040' ? [FAMILY.RP2040] : [FAMILY.RP2350_ARM_S, FAMILY.RP2350_RISCV, FAMILY.RP2350_ARM_NS];
+    chip === 'RP2040'
+      ? [FAMILY.RP2040]
+      : [FAMILY.RP2350_ARM_S, FAMILY.RP2350_RISCV, FAMILY.RP2350_ARM_NS];
   const sectors = new Map<number, Uint8Array>();
   let skipped = 0;
   for (let o = 0; o < bytes.length; o += UF2.BLOCK) {
@@ -242,7 +289,12 @@ export function uf2ToFlashImage(bytes: Uint8Array, chip: 'RP2040' | 'RP2350'): F
       skipped++; // "not main flash" blocks
       continue;
     }
-    if (fam !== null && !want.includes(fam) && fam !== FAMILY.DATA && fam !== FAMILY.ABSOLUTE) {
+    if (
+      fam !== null &&
+      !want.includes(fam) &&
+      fam !== FAMILY.DATA &&
+      fam !== FAMILY.ABSOLUTE
+    ) {
       skipped++;
       continue;
     }
@@ -271,8 +323,11 @@ export function uf2ToFlashImage(bytes: Uint8Array, chip: 'RP2040' | 'RP2350'): F
       i += n;
     }
   }
-  if (sectors.size === 0) throw new Error(`This UF2 has no blocks for ${chip}.`);
-  const list = [...sectors.entries()].sort((a, b) => a[0] - b[0]).map(([addr, data]) => ({ addr, data }));
+  if (sectors.size === 0)
+    throw new Error(`This UF2 has no blocks for ${chip}.`);
+  const list = [...sectors.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([addr, data]) => ({ addr, data }));
   return {
     sectors: list,
     bytes: list.length * RP_SECTOR,
@@ -285,11 +340,14 @@ export function uf2ToFlashImage(bytes: Uint8Array, chip: 'RP2040' | 'RP2350'): F
  * Walk RP2350 picobin blocks (marker 0xffffded3 ... 0xab123579) in the first
  * 64 KiB and look for a SIGNATURE item (type 0x09). Bounded, never throws.
  */
-export function hasSignedImageDef(sectors: { addr: number; data: Uint8Array }[]): boolean {
+export function hasSignedImageDef(
+  sectors: { addr: number; data: Uint8Array }[]
+): boolean {
   const head = new Uint8Array(0x10000).fill(0xff);
   for (const s of sectors) {
     const off = s.addr - RP_FLASH_START;
-    if (off >= 0 && off < head.length) head.set(s.data.subarray(0, Math.min(RP_SECTOR, head.length - off)), off);
+    if (off >= 0 && off < head.length)
+      head.set(s.data.subarray(0, Math.min(RP_SECTOR, head.length - off)), off);
   }
   for (let p = 0; p + 8 <= head.length; p += 4) {
     if (le32(head, p) !== 0xffffded3) continue;
@@ -321,38 +379,59 @@ export interface Target {
 }
 
 export const TARGETS: readonly Target[] = [
-  { id: 'esp32-s3', name: 'ESP32-S3', kind: 'esp', match: /esp32[-_]?s3.*\.bin$/i },
-  { id: 'esp32-s2', name: 'ESP32-S2', kind: 'esp', match: /esp32[-_]?s2.*\.bin$/i },
-  { id: 'rp2350', name: 'RP2350 (Pico 2 and others)', kind: 'uf2', match: /\.uf2$/i },
-  { id: 'rp2040', name: 'RP2040 (Pico and others)', kind: 'uf2', match: /\.uf2$/i },
+  {
+    id: 'esp32-s3',
+    name: 'ESP32-S3',
+    kind: 'esp',
+    match: /esp32[-_]?s3.*\.bin$/i,
+  },
+  {
+    id: 'esp32-s2',
+    name: 'ESP32-S2',
+    kind: 'esp',
+    match: /esp32[-_]?s2.*\.bin$/i,
+  },
+  {
+    id: 'rp2350',
+    name: 'RP2350 (Pico 2 and others)',
+    kind: 'uf2',
+    match: /\.uf2$/i,
+  },
+  {
+    id: 'rp2040',
+    name: 'RP2040 (Pico and others)',
+    kind: 'uf2',
+    match: /\.uf2$/i,
+  },
 ];
 
 export interface FirmwareSource {
   repo: string;
   name: string;
   home: string;
-  /** Signed with the PicoKeys release key, so it still boots after secure boot is enabled. */
-  picoKeysSigned: boolean;
+  /** Signed with the upstream release key, so it still boots after secure boot is enabled. */
+  upstreamSigned: boolean;
 }
 
 export const FIRMWARE_SOURCES: readonly FirmwareSource[] = [
   {
     repo: SITE.firmwareRepo,
-    name: 'Keyforge builds',
+    name: 'Keyforge firmware (recommended)',
     home: `https://github.com/${SITE.firmwareRepo}/releases`,
-    picoKeysSigned: false,
+    upstreamSigned: false,
   },
   {
+    // Upstream release, signed with the key that secure boot burns in.
     repo: 'polhenarejos/pico-fido',
-    name: 'pico-fido (official)',
+    name: 'Upstream signed build (for secure boot)',
     home: 'https://github.com/polhenarejos/pico-fido/releases',
-    picoKeysSigned: true,
+    upstreamSigned: true,
   },
   {
     repo: 'librekeys/pico-fido-firmwares',
-    name: 'LibreKeys builds (many RP boards)',
+    name: 'Community builds (more RP2040 boards)',
     home: 'https://github.com/librekeys/pico-fido-firmwares/releases',
-    picoKeysSigned: false,
+    upstreamSigned: false,
   },
 ];
 
@@ -382,7 +461,10 @@ export function uf2HintFromName(name: string): 'RP2040' | 'RP2350' | null {
   return null;
 }
 
-export function matchAssets(releases: GithubRelease[] | null | undefined, targetId: TargetId): Asset[] {
+export function matchAssets(
+  releases: GithubRelease[] | null | undefined,
+  targetId: TargetId
+): Asset[] {
   const t = TARGETS.find((x) => x.id === targetId);
   if (!t) return [];
   const out: Asset[] = [];
@@ -413,10 +495,15 @@ export function matchAssets(releases: GithubRelease[] | null | undefined, target
 /* ------------------------------------------------------------------ */
 
 const S = [
-  7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
-  4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
+  7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5,
+  9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11,
+  16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15,
+  21,
 ];
-const K = Array.from({ length: 64 }, (_, i) => Math.floor(Math.abs(Math.sin(i + 1)) * 2 ** 32) >>> 0);
+const K = Array.from(
+  { length: 64 },
+  (_, i) => Math.floor(Math.abs(Math.sin(i + 1)) * 2 ** 32) >>> 0
+);
 
 export function md5Hex(bytes: Uint8Array): string {
   const len = bytes.length;
@@ -468,7 +555,9 @@ export function md5Hex(bytes: Uint8Array): string {
   }
   const out = new DataView(new ArrayBuffer(16));
   [a0, b0, c0, d0].forEach((v, i) => out.setUint32(i * 4, v, true));
-  return Array.from(new Uint8Array(out.buffer), (x) => x.toString(16).padStart(2, '0')).join('');
+  return Array.from(new Uint8Array(out.buffer), (x) =>
+    x.toString(16).padStart(2, '0')
+  ).join('');
 }
 
 export function formatBytes(n: number | null | undefined): string {

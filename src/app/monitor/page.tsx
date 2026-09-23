@@ -4,7 +4,7 @@ import { SerialMonitor } from '@/components/serial-monitor';
 
 export const metadata: Metadata = {
   title: 'Serial monitor',
-  description: 'Watch ESP32 boot logs and check whether your pico-fido flash worked.',
+  description: 'Watch ESP32 boot logs and check whether your flash worked.',
 };
 
 export default function MonitorPage() {

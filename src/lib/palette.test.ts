@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { applyLedOrder, LED_PALETTES, LED_STATES, ledColour, orderFor, primariesOf } from './protocol';
+import {
+  applyLedOrder,
+  LED_PALETTES,
+  LED_STATES,
+  ledColour,
+  orderFor,
+  primariesOf,
+} from './protocol';
 
 const RED = [255, 0, 0] as const;
 const GREEN = [0, 255, 0] as const;
@@ -16,7 +23,9 @@ describe('LED palettes', () => {
 
   test('every palette gives each state a distinct colour', () => {
     for (const p of LED_PALETTES) {
-      const colours = LED_STATES.map((s) => ledColour(p.order, s.rgb).toString());
+      const colours = LED_STATES.map((s) =>
+        ledColour(p.order, s.rgb).toString()
+      );
       expect(new Set(colours).size).toBe(LED_STATES.length);
     }
   });

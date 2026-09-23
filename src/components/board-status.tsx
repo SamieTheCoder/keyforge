@@ -27,8 +27,14 @@ export function useBoards(log?: (kind: LogKind, text: string) => void) {
   }, [log]);
 
   const scan = useCallback(async () => {
-    const usb = 'usb' in navigator ? await navigator.usb.getDevices().catch(() => []) : [];
-    const ports = 'serial' in navigator ? await navigator.serial.getPorts().catch(() => []) : [];
+    const usb =
+      'usb' in navigator
+        ? await navigator.usb.getDevices().catch(() => [])
+        : [];
+    const ports =
+      'serial' in navigator
+        ? await navigator.serial.getPorts().catch(() => [])
+        : [];
     const next = dedupeBoards([
       ...usb.map((d) =>
         classifyUsb({
@@ -41,7 +47,15 @@ export function useBoards(log?: (kind: LogKind, text: string) => void) {
       ...ports.map((p) => classifySerial(p.getInfo())),
     ]);
     const change = describeTransition(prev.current, next);
-    if (change) logRef.current?.(change.level === 'ok' ? 'ok' : change.level === 'warn' ? 'wait' : 'info', change.text);
+    if (change)
+      logRef.current?.(
+        change.level === 'ok'
+          ? 'ok'
+          : change.level === 'warn'
+            ? 'wait'
+            : 'info',
+        change.text
+      );
     prev.current = next;
     setItems(next);
   }, []);
@@ -73,10 +87,15 @@ export function useBoards(log?: (kind: LogKind, text: string) => void) {
     if (!('usb' in navigator)) return;
     try {
       await navigator.usb.requestDevice({
-        filters: [{ vendorId: ESPRESSIF_VID }, { vendorId: RPI_VID }, { classCode: 0xff }],
+        filters: [
+          { vendorId: ESPRESSIF_VID },
+          { vendorId: RPI_VID },
+          { classCode: 0xff },
+        ],
       });
     } catch (e) {
-      if ((e as Error).name !== 'NotFoundError') logRef.current?.('error', (e as Error).message);
+      if ((e as Error).name !== 'NotFoundError')
+        logRef.current?.('error', (e as Error).message);
     }
     await scan();
   }, [scan]);
@@ -84,9 +103,18 @@ export function useBoards(log?: (kind: LogKind, text: string) => void) {
   return { items, verdict: boardVerdict(items), scan, find };
 }
 
-export function BoardStatusPanel({ boards }: { boards: ReturnType<typeof useBoards> }) {
+export function BoardStatusPanel({
+  boards,
+}: {
+  boards: ReturnType<typeof useBoards>;
+}) {
   const { items, verdict, find } = boards;
-  const Icon = verdict.level === 'ok' ? CheckCircle : verdict.level === 'warn' ? Warning : CircleDashed;
+  const Icon =
+    verdict.level === 'ok'
+      ? CheckCircle
+      : verdict.level === 'warn'
+        ? Warning
+        : CircleDashed;
   return (
     <Panel
       title="Board status"
@@ -101,19 +129,30 @@ export function BoardStatusPanel({ boards }: { boards: ReturnType<typeof useBoar
         aria-live="polite"
         className={cn(
           'flex gap-3 rounded-[10px] border px-4 py-3',
-          verdict.level === 'ok' && 'border-[color-mix(in_srgb,var(--ok)_45%,transparent)] bg-[color-mix(in_srgb,var(--ok)_8%,transparent)]',
-          verdict.level === 'warn' && 'border-[color-mix(in_srgb,var(--warn)_45%,transparent)] bg-warn-soft',
+          verdict.level === 'ok' &&
+            'border-[color-mix(in_srgb,var(--ok)_45%,transparent)] bg-[color-mix(in_srgb,var(--ok)_8%,transparent)]',
+          verdict.level === 'warn' &&
+            'bg-warn-soft border-[color-mix(in_srgb,var(--warn)_45%,transparent)]',
           verdict.level === 'idle' && 'border-line bg-sunken'
         )}
       >
         <Icon
           size={20}
           weight="duotone"
-          className={cn('mt-0.5 shrink-0', verdict.level === 'ok' ? 'text-ok' : verdict.level === 'warn' ? 'text-warn' : 'text-muted')}
+          className={cn(
+            'mt-0.5 shrink-0',
+            verdict.level === 'ok'
+              ? 'text-ok'
+              : verdict.level === 'warn'
+                ? 'text-warn'
+                : 'text-muted'
+          )}
         />
         <div>
           <p className="text-sm font-semibold">{verdict.title}</p>
-          <p className="mt-0.5 text-[13px] leading-relaxed text-muted">{verdict.text}</p>
+          <p className="text-muted mt-0.5 text-[13px] leading-relaxed">
+            {verdict.text}
+          </p>
         </div>
       </div>
       {items.length > 0 && (
@@ -122,13 +161,14 @@ export function BoardStatusPanel({ boards }: { boards: ReturnType<typeof useBoar
             <li
               key={it.key}
               className={cn(
-                'flex items-center justify-between gap-3 rounded-[10px] border border-line bg-raised px-3 py-2 text-[13px]',
-                it.kind === 'pico-key' && 'border-l-[3px] border-l-ok',
-                (it.kind === 'esp-bootloader' || it.kind === 'rp-bootsel') && 'border-l-[3px] border-l-warn'
+                'border-line bg-raised flex items-center justify-between gap-3 rounded-[10px] border px-3 py-2 text-[13px]',
+                it.kind === 'pico-key' && 'border-l-ok border-l-[3px]',
+                (it.kind === 'esp-bootloader' || it.kind === 'rp-bootsel') &&
+                  'border-l-warn border-l-[3px]'
               )}
             >
               <span className="font-medium">{it.label}</span>
-              <span className="font-mono text-xs text-muted">
+              <span className="text-muted font-mono text-xs">
                 {it.usbId} via {it.via}
               </span>
             </li>

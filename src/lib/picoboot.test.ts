@@ -4,7 +4,12 @@ import assert from 'node:assert/strict';
 import { hasSignedImageDef, UF2, uf2ToFlashImage } from './firmware';
 import { buildCommand, decodeRpSecurity, OTP_SECURITY_ROWS } from './picoboot';
 
-function block(addr: number, payload: Uint8Array, family: number | null, flags = 0): Uint8Array {
+function block(
+  addr: number,
+  payload: Uint8Array,
+  family: number | null,
+  flags = 0
+): Uint8Array {
   const b = new Uint8Array(UF2.BLOCK);
   const v = new DataView(b.buffer);
   v.setUint32(0, UF2.MAGIC0, true);
@@ -50,8 +55,14 @@ test('buildCommand lays out the 32-byte PICOBOOT packet', () => {
 test('uf2ToFlashImage packs 256-byte blocks into 4 KiB sectors padded with 0xFF', () => {
   const a = new Uint8Array(256).fill(1);
   const b = new Uint8Array(256).fill(2);
-  const img = uf2ToFlashImage(join(block(0x10000000, a, RP2040), block(0x10001100, b, RP2040)), 'RP2040');
-  assert.deepEqual(img.sectors.map((s) => s.addr), [0x10000000, 0x10001000]);
+  const img = uf2ToFlashImage(
+    join(block(0x10000000, a, RP2040), block(0x10001100, b, RP2040)),
+    'RP2040'
+  );
+  assert.deepEqual(
+    img.sectors.map((s) => s.addr),
+    [0x10000000, 0x10001000]
+  );
   assert.equal(img.sectors[0].data[0], 1);
   assert.equal(img.sectors[0].data[256], 0xff);
   assert.equal(img.sectors[1].data[0x100], 2);
@@ -62,20 +73,41 @@ test('uf2ToFlashImage packs 256-byte blocks into 4 KiB sectors padded with 0xFF'
 test('uf2ToFlashImage skips the RP2350-E10 absolute block and foreign families', () => {
   const p = new Uint8Array(256).fill(3);
   const img = uf2ToFlashImage(
-    join(block(0x10ffff00, p, ABS), block(0x10000000, p, RP2350), block(0x10002000, p, RP2040)),
+    join(
+      block(0x10ffff00, p, ABS),
+      block(0x10000000, p, RP2350),
+      block(0x10002000, p, RP2040)
+    ),
     'RP2350'
   );
-  assert.deepEqual(img.sectors.map((s) => s.addr), [0x10000000]);
+  assert.deepEqual(
+    img.sectors.map((s) => s.addr),
+    [0x10000000]
+  );
   assert.equal(img.skippedBlocks, 2);
 });
 
 test('uf2ToFlashImage rejects RAM builds and files with nothing for the chip', () => {
-  assert.throws(() => uf2ToFlashImage(block(0x20000000, new Uint8Array(256), RP2040), 'RP2040'), /outside flash/);
-  assert.throws(() => uf2ToFlashImage(block(0x10000000, new Uint8Array(256), RP2040), 'RP2350'), /no blocks/);
+  assert.throws(
+    () =>
+      uf2ToFlashImage(block(0x20000000, new Uint8Array(256), RP2040), 'RP2040'),
+    /outside flash/
+  );
+  assert.throws(
+    () =>
+      uf2ToFlashImage(block(0x10000000, new Uint8Array(256), RP2040), 'RP2350'),
+    /no blocks/
+  );
 });
 
 function picobinBlock(items: number[][]): Uint8Array {
-  const words = [0xffffded3, ...items.flat(), 0x000003ff | (0 << 8), 0, 0xab123579];
+  const words = [
+    0xffffded3,
+    ...items.flat(),
+    0x000003ff | (0 << 8),
+    0,
+    0xab123579,
+  ];
   const b = new Uint8Array(words.length * 4);
   const v = new DataView(b.buffer);
   words.forEach((w, i) => v.setUint32(i * 4, w >>> 0, true));
@@ -93,7 +125,10 @@ test('hasSignedImageDef finds a SIGNATURE item and ignores unsigned images', () 
   // SIGNATURE item: type 0x09, 2 words (header + 1 payload word, enough for the walk).
   const signature = [0x00000209, 0xdeadbeef];
   assert.equal(hasSignedImageDef(sector(picobinBlock([imageType]))), false);
-  assert.equal(hasSignedImageDef(sector(picobinBlock([imageType, signature]))), true);
+  assert.equal(
+    hasSignedImageDef(sector(picobinBlock([imageType, signature]))),
+    true
+  );
 });
 
 test('decodeRpSecurity applies the 3-of-8 and 2-of-3 votes', () => {

@@ -4,7 +4,8 @@ import { Passkeys } from '@/components/passkeys';
 
 export const metadata: Metadata = {
   title: 'Passkeys and PIN',
-  description: 'Set or change the FIDO PIN of a pico-fido key and manage the passkeys stored on it.',
+  description:
+    'Set or change the FIDO PIN of a Keyforge key and manage the passkeys stored on it.',
 };
 
 export default function PasskeysPage() {

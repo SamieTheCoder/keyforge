@@ -1,11 +1,31 @@
 'use client';
 
-import { Key, LockKey, LockKeyOpen, PlugsConnected, Trash } from '@phosphor-icons/react';
+import {
+  Key,
+  LockKey,
+  LockKeyOpen,
+  PlugsConnected,
+  Trash,
+} from '@phosphor-icons/react';
 import { useEffect, useRef, useState } from 'react';
 import { LogView, useLog } from '@/components/log';
-import { Button, Check, Help, KeyValue, Label, Notice, Panel, Pill } from '@/components/ui';
+import {
+  Button,
+  Check,
+  Help,
+  KeyValue,
+  Label,
+  Notice,
+  Panel,
+  Pill,
+} from '@/components/ui';
 import { useBrowserCaps } from '@/lib/caps';
-import { CtapError, FidoSession, type AuthenticatorInfo, type RelyingParty } from '@/lib/ctap';
+import {
+  CtapError,
+  FidoSession,
+  type AuthenticatorInfo,
+  type RelyingParty,
+} from '@/lib/ctap';
 import { toHex } from '@/lib/protocol';
 import { cn } from '@/lib/utils';
 import { CcidTransport } from '@/lib/webusb';
@@ -24,9 +44,16 @@ export function Passkeys() {
   const [busy, setBusy] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [rps, setRps] = useState<RelyingParty[] | null>(null);
-  const [storage, setStorage] = useState<{ existing: number; remaining: number } | null>(null);
+  const [storage, setStorage] = useState<{
+    existing: number;
+    remaining: number;
+  } | null>(null);
   const [showApdu, setShowApdu] = useState(false);
-  const [toDelete, setToDelete] = useState<{ rp: string; user: string; id: Uint8Array } | null>(null);
+  const [toDelete, setToDelete] = useState<{
+    rp: string;
+    user: string;
+    id: Uint8Array;
+  } | null>(null);
   const pending = useRef<string | null>(null);
   const [crashedOn, setCrashedOn] = useState<string | null>(null);
   // Set when storage info crashed the key, so the next unlock goes straight to the list.
@@ -52,10 +79,16 @@ export function Passkeys() {
           setCrashedOn(during);
           if (during === STORAGE_STEP) {
             skipStorage.current = true;
-            log('info', 'Next time you unlock, Keyforge will skip storage info and go straight to the passkey list.');
+            log(
+              'info',
+              'Next time you unlock, Keyforge will skip storage info and go straight to the passkey list.'
+            );
           }
         } else {
-          log('info', 'Key was unplugged. Passkey list cleared from this page.');
+          log(
+            'info',
+            'Key was unplugged. Passkey list cleared from this page.'
+          );
         }
         reset();
       }
@@ -85,7 +118,9 @@ export function Passkeys() {
   const connect = async () => {
     setBusy(true);
     try {
-      const device = await navigator.usb.requestDevice({ filters: [{ classCode: 0xff }] });
+      const device = await navigator.usb.requestDevice({
+        filters: [{ classCode: 0xff }],
+      });
       const t = new CcidTransport(device, (k, text) => log(k, text));
       await t.open();
       transport.current = t;
@@ -93,7 +128,10 @@ export function Passkeys() {
       await f.select();
       fido.current = f;
       const i = await refreshInfo();
-      log('ok', `Connected to ${t.label}. ${i.pinSet ? 'A PIN is set.' : 'No PIN is set yet.'}`);
+      log(
+        'ok',
+        `Connected to ${t.label}. ${i.pinSet ? 'A PIN is set.' : 'No PIN is set yet.'}`
+      );
     } catch (e) {
       const err = e as Error;
       if (err.name !== 'NotFoundError') log('error', err.message);
@@ -117,9 +155,14 @@ export function Passkeys() {
       await fn();
     } catch (e) {
       // If the key vanished, the disconnect handler already explained why.
-      if (!transport.current && /transfer|disconnected|closed/i.test((e as Error).message)) return;
+      if (
+        !transport.current &&
+        /transfer|disconnected|closed/i.test((e as Error).message)
+      )
+        return;
       log('error', (e as Error).message);
-      if (e instanceof CtapError && [0x31, 0x32, 0x34].includes(e.code)) await refreshInfo().catch(() => {});
+      if (e instanceof CtapError && [0x31, 0x32, 0x34].includes(e.code))
+        await refreshInfo().catch(() => {});
       if (transport.current?.closed) {
         log('error', 'Connection closed. Replug the key and connect again.');
         reset();
@@ -137,7 +180,12 @@ export function Passkeys() {
       setUnlocked(false);
       setRps(null);
       setStorage(null);
-      log('ok', mode === 'set' ? 'PIN set. Use it whenever a site asks for your security key PIN.' : 'PIN changed.');
+      log(
+        'ok',
+        mode === 'set'
+          ? 'PIN set. Use it whenever a site asks for your security key PIN.'
+          : 'PIN changed.'
+      );
       await refreshInfo();
     });
 
@@ -177,7 +225,10 @@ export function Passkeys() {
     }
     const list = await step('listing passkeys', () => f.listPasskeys());
     setRps(list);
-    log('info', `Found ${list.reduce((n, r) => n + r.passkeys.length, 0)} passkeys on ${list.length} sites.`);
+    log(
+      'info',
+      `Found ${list.reduce((n, r) => n + r.passkeys.length, 0)} passkeys on ${list.length} sites.`
+    );
   };
 
   const lock = () => {
@@ -193,21 +244,42 @@ export function Passkeys() {
       if (!toDelete) return;
       const target = toDelete;
       setToDelete(null);
-      await step('deleting a passkey', () => fido.current!.deletePasskey(target.id));
-      log('ok', `Deleted the passkey for ${target.user || 'unnamed user'} on ${target.rp}.`);
+      await step('deleting a passkey', () =>
+        fido.current!.deletePasskey(target.id)
+      );
+      log(
+        'ok',
+        `Deleted the passkey for ${target.user || 'unnamed user'} on ${target.rp}.`
+      );
       await loadPasskeys();
     });
 
   const side = (
     <div className="space-y-5 lg:sticky lg:top-24">
       <Panel title="Privacy">
-        <p className="text-sm leading-relaxed text-muted">
-          Your PIN is encrypted in this tab before it is sent to the key, and the passkey list exists only on this page. Nothing is
-          uploaded or stored. Lock or unplug the key to clear it.
+        <p className="text-muted text-sm leading-relaxed">
+          Your PIN is encrypted in this tab before it is sent to the key, and
+          the passkey list exists only on this page. Nothing is uploaded or
+          stored. Lock or unplug the key to clear it.
         </p>
       </Panel>
-      <Panel title="Activity" actions={<Check label="Show APDUs" checked={showApdu} onChange={(e) => setShowApdu(e.target.checked)} />}>
-        <LogView lines={lines} onClear={clear} showApdu={showApdu} emptyText="Connect a key to begin." height="h-64" />
+      <Panel
+        title="Activity"
+        actions={
+          <Check
+            label="Show APDUs"
+            checked={showApdu}
+            onChange={(e) => setShowApdu(e.target.checked)}
+          />
+        }
+      >
+        <LogView
+          lines={lines}
+          onClear={clear}
+          showApdu={showApdu}
+          emptyText="Connect a key to begin."
+          height="h-64"
+        />
       </Panel>
     </div>
   );
@@ -217,31 +289,50 @@ export function Passkeys() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
         <Panel>
           <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-            <span className="grid size-14 shrink-0 place-items-center rounded-[14px] border border-accent-line bg-accent-soft text-accent">
+            <span className="border-accent-line bg-accent-soft text-accent grid size-14 shrink-0 place-items-center rounded-[14px] border">
               <Key size={28} weight="duotone" />
             </span>
             <div className="flex-1">
               <p className="text-lg font-semibold">Connect your key</p>
-              <p className="mt-1 text-sm text-muted">Set or change the FIDO PIN, see how much storage is left, and remove passkeys you no longer use.</p>
+              <p className="text-muted mt-1 text-sm">
+                Set or change the FIDO PIN, see how much storage is left, and
+                remove passkeys you no longer use.
+              </p>
             </div>
-            <Button variant="primary" size="lg" onClick={connect} disabled={busy || (caps.ready && !caps.usb)}>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={connect}
+              disabled={busy || (caps.ready && !caps.usb)}
+            >
               <PlugsConnected size={18} weight="bold" /> Connect key
             </Button>
           </div>
           {caps.ready && !caps.usb && (
-            <Notice tone="danger" className="mt-5" title="WebUSB is not available">
+            <Notice
+              tone="danger"
+              className="mt-5"
+              title="WebUSB is not available"
+            >
               Use Chrome, Edge or another Chromium browser on desktop.
             </Notice>
           )}
           {crashedOn && (
-            <Notice tone="warn" className="mt-5" title={`The key restarted while ${crashedOn}`}>
-              Your passkeys and PIN are safe; a restart does not erase anything. The firmware crashed handling this request over the USB
-              smart-card interface. Connect again to retry. If it repeats, update to the latest pico-fido release on the Flash page.
+            <Notice
+              tone="warn"
+              className="mt-5"
+              title={`The key restarted while ${crashedOn}`}
+            >
+              Your passkeys and PIN are safe; a restart does not erase anything.
+              The firmware crashed handling this request over the USB smart-card
+              interface. Connect again to retry. If it repeats, update to the
+              latest firmware on the Flash page.
             </Notice>
           )}
           <Notice className="mt-5">
-            Works with pico-fido keys whose USB smart-card interface is enabled (the default). It talks to the key the same way the
-            Configure page does, so close that page first.
+            Works with Keyforge keys whose USB smart-card interface is enabled
+            (the default). It talks to the key the same way the Configure page
+            does, so close that page first.
           </Notice>
         </Panel>
         {side}
@@ -257,15 +348,30 @@ export function Passkeys() {
         <Panel
           title="Key"
           actions={
-            <Button size="sm" variant="ghost" onClick={disconnect} disabled={busy}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={disconnect}
+              disabled={busy}
+            >
               Disconnect
             </Button>
           }
         >
           <div className="mb-4 flex flex-wrap gap-2">
-            <Pill tone={info.pinSet ? 'ok' : 'warn'}>{info.pinSet ? 'PIN set' : 'No PIN'}</Pill>
-            {retries != null && <Pill tone={retries <= 3 ? 'danger' : 'neutral'}>{retries} PIN attempts left</Pill>}
-            {info.credMgmt ? <Pill tone="accent">Passkey management supported</Pill> : <Pill>No passkey management</Pill>}
+            <Pill tone={info.pinSet ? 'ok' : 'warn'}>
+              {info.pinSet ? 'PIN set' : 'No PIN'}
+            </Pill>
+            {retries != null && (
+              <Pill tone={retries <= 3 ? 'danger' : 'neutral'}>
+                {retries} PIN attempts left
+              </Pill>
+            )}
+            {info.credMgmt ? (
+              <Pill tone="accent">Passkey management supported</Pill>
+            ) : (
+              <Pill>No passkey management</Pill>
+            )}
           </div>
           <KeyValue
             rows={[
@@ -275,13 +381,23 @@ export function Passkeys() {
             ]}
           />
           {retries != null && retries <= 3 && (
-            <Notice tone="danger" className="mt-4" title={`Only ${retries} PIN attempts left`}>
-              When they run out the PIN is blocked, and the only way back is a reset that erases every passkey on the key.
+            <Notice
+              tone="danger"
+              className="mt-4"
+              title={`Only ${retries} PIN attempts left`}
+            >
+              When they run out the PIN is blocked, and the only way back is a
+              reset that erases every passkey on the key.
             </Notice>
           )}
         </Panel>
 
-        <PinForm mode={info.pinSet ? 'change' : 'set'} minLength={info.minPinLength} busy={busy} onSubmit={savePin} />
+        <PinForm
+          mode={info.pinSet ? 'change' : 'set'}
+          minLength={info.minPinLength}
+          busy={busy}
+          onSubmit={savePin}
+        />
 
         {info.pinSet && info.credMgmt && (
           <Panel
@@ -289,10 +405,19 @@ export function Passkeys() {
             actions={
               unlocked ? (
                 <>
-                  <Button size="sm" onClick={() => run(loadPasskeys)} disabled={busy}>
+                  <Button
+                    size="sm"
+                    onClick={() => run(loadPasskeys)}
+                    disabled={busy}
+                  >
                     Reload
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={lock} disabled={busy}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={lock}
+                    disabled={busy}
+                  >
                     <LockKey size={14} weight="bold" /> Lock
                   </Button>
                 </>
@@ -303,35 +428,63 @@ export function Passkeys() {
               <UnlockForm busy={busy} onUnlock={unlock} />
             ) : (
               <div className="space-y-5">
-                {storage && <StorageMeter used={storage.existing} free={storage.remaining} />}
+                {storage && (
+                  <StorageMeter
+                    used={storage.existing}
+                    free={storage.remaining}
+                  />
+                )}
                 {rps && rps.length === 0 && (
-                  <div className="rounded-[12px] border border-dashed border-line-strong p-8 text-center">
+                  <div className="border-line-strong rounded-[12px] border border-dashed p-8 text-center">
                     <p className="font-medium">No passkeys yet</p>
-                    <p className="mt-1 text-sm text-muted">Passkeys you save to this key on websites will show up here.</p>
+                    <p className="text-muted mt-1 text-sm">
+                      Passkeys you save to this key on websites will show up
+                      here.
+                    </p>
                   </div>
                 )}
                 {rps && rps.length > 0 && (
                   <ul className="space-y-3" aria-label={`${total} passkeys`}>
                     {rps.map((rp) => (
-                      <li key={toHex(rp.rpIdHash, '')} className="rounded-[12px] border border-line bg-raised">
-                        <div className="flex items-center gap-3 border-b border-line px-4 py-3">
-                          <span className="grid size-9 place-items-center rounded-[10px] bg-accent-soft font-mono text-sm font-semibold text-accent uppercase">
+                      <li
+                        key={toHex(rp.rpIdHash, '')}
+                        className="border-line bg-raised rounded-[12px] border"
+                      >
+                        <div className="border-line flex items-center gap-3 border-b px-4 py-3">
+                          <span className="bg-accent-soft text-accent grid size-9 place-items-center rounded-[10px] font-mono text-sm font-semibold uppercase">
                             {rp.id.replace(/^www\./, '').charAt(0) || '?'}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium">{rp.name || rp.id}</p>
-                            {rp.name && rp.name !== rp.id && <p className="truncate font-mono text-xs text-muted">{rp.id}</p>}
+                            <p className="truncate font-medium">
+                              {rp.name || rp.id}
+                            </p>
+                            {rp.name && rp.name !== rp.id && (
+                              <p className="text-muted truncate font-mono text-xs">
+                                {rp.id}
+                              </p>
+                            )}
                           </div>
                           <Pill>{rp.passkeys.length}</Pill>
                         </div>
                         <ul>
                           {rp.passkeys.map((pk) => (
-                            <li key={toHex(pk.credentialId, '')} className="flex items-center gap-3 px-4 py-3 [&+li]:border-t [&+li]:border-line">
+                            <li
+                              key={toHex(pk.credentialId, '')}
+                              className="[&+li]:border-line flex items-center gap-3 px-4 py-3 [&+li]:border-t"
+                            >
                               <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm">{pk.displayName || pk.userName || 'Unnamed account'}</p>
-                                {pk.userName && pk.displayName && pk.userName !== pk.displayName && (
-                                  <p className="truncate text-xs text-muted">{pk.userName}</p>
-                                )}
+                                <p className="truncate text-sm">
+                                  {pk.displayName ||
+                                    pk.userName ||
+                                    'Unnamed account'}
+                                </p>
+                                {pk.userName &&
+                                  pk.displayName &&
+                                  pk.userName !== pk.displayName && (
+                                    <p className="text-muted truncate text-xs">
+                                      {pk.userName}
+                                    </p>
+                                  )}
                               </div>
                               <Button
                                 size="sm"
@@ -339,7 +492,13 @@ export function Passkeys() {
                                 className="text-danger hover:text-danger"
                                 disabled={busy}
                                 aria-label={`Delete passkey for ${pk.userName || pk.displayName || 'account'} on ${rp.id}`}
-                                onClick={() => setToDelete({ rp: rp.id, user: pk.userName || pk.displayName, id: pk.credentialId })}
+                                onClick={() =>
+                                  setToDelete({
+                                    rp: rp.id,
+                                    user: pk.userName || pk.displayName,
+                                    id: pk.credentialId,
+                                  })
+                                }
                               >
                                 <Trash size={15} weight="bold" />
                               </Button>
@@ -350,19 +509,32 @@ export function Passkeys() {
                     ))}
                   </ul>
                 )}
-                {!rps && <div className="h-24 animate-pulse rounded-[12px] bg-sunken" aria-label="Loading passkeys" />}
+                {!rps && (
+                  <div
+                    className="bg-sunken h-24 animate-pulse rounded-[12px]"
+                    aria-label="Loading passkeys"
+                  />
+                )}
               </div>
             )}
           </Panel>
         )}
         {!info.pinSet && (
-          <Notice title="Set a PIN to see your passkeys">Listing and deleting passkeys needs a PIN, so the key knows it is you.</Notice>
+          <Notice title="Set a PIN to see your passkeys">
+            Listing and deleting passkeys needs a PIN, so the key knows it is
+            you.
+          </Notice>
         )}
       </div>
       {side}
 
       {toDelete && (
-        <ConfirmDelete target={toDelete} busy={busy} onCancel={() => setToDelete(null)} onConfirm={confirmDelete} />
+        <ConfirmDelete
+          target={toDelete}
+          busy={busy}
+          onCancel={() => setToDelete(null)}
+          onConfirm={confirmDelete}
+        />
       )}
     </div>
   );
@@ -385,9 +557,15 @@ function StorageMeter({ used, free }: { used: number; free: number }) {
         aria-valuemin={0}
         aria-valuemax={total}
         aria-valuenow={used}
-        className="h-2 overflow-hidden rounded-full bg-sunken"
+        className="bg-sunken h-2 overflow-hidden rounded-full"
       >
-        <div className={cn('h-full rounded-full', pct > 85 ? 'bg-warn' : 'bg-gradient-to-r from-accent-3 to-accent')} style={{ width: `${pct}%` }} />
+        <div
+          className={cn(
+            'h-full rounded-full',
+            pct > 85 ? 'bg-warn' : 'from-accent-3 to-accent bg-gradient-to-r'
+          )}
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );
@@ -418,7 +596,8 @@ function PinForm({
           : mode === 'change' && next && next === current
             ? 'The new PIN is the same as the current one.'
             : null;
-  const ready = !error && next && confirm === next && (mode === 'set' || current);
+  const ready =
+    !error && next && confirm === next && (mode === 'set' || current);
 
   return (
     <Panel title={mode === 'set' ? 'Set a PIN' : 'Change PIN'}>
@@ -436,7 +615,14 @@ function PinForm({
         {mode === 'change' && (
           <div>
             <Label htmlFor="pin-cur">Current PIN</Label>
-            <input id="pin-cur" type="password" autoComplete="current-password" className="field-input" value={current} onChange={(e) => setCurrent(e.target.value)} />
+            <input
+              id="pin-cur"
+              type="password"
+              autoComplete="current-password"
+              className="field-input"
+              value={current}
+              onChange={(e) => setCurrent(e.target.value)}
+            />
           </div>
         )}
         <div>
@@ -454,27 +640,48 @@ function PinForm({
         </div>
         <div>
           <Label htmlFor="pin-confirm">Confirm new PIN</Label>
-          <input id="pin-confirm" type="password" autoComplete="new-password" className="field-input" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          <input
+            id="pin-confirm"
+            type="password"
+            autoComplete="new-password"
+            className="field-input"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
         </div>
         <div className="flex flex-wrap items-center gap-3 sm:col-span-3">
           <Button type="submit" variant="primary" disabled={!ready || busy}>
             {mode === 'set' ? 'Set PIN' : 'Change PIN'}
           </Button>
-          <p id="pin-help" className={cn('text-[13px]', error ? 'font-medium text-danger' : 'text-muted')}>
-            {error ?? `At least ${minLength} characters. Letters and symbols are allowed.`}
+          <p
+            id="pin-help"
+            className={cn(
+              'text-[13px]',
+              error ? 'text-danger font-medium' : 'text-muted'
+            )}
+          >
+            {error ??
+              `At least ${minLength} characters. Letters and symbols are allowed.`}
           </p>
         </div>
       </form>
       {mode === 'set' && (
         <Help className="mt-4">
-          Websites ask for this PIN when you sign in with the key. If you forget it, the only fix is a reset that erases every passkey.
+          Websites ask for this PIN when you sign in with the key. If you forget
+          it, the only fix is a reset that erases every passkey.
         </Help>
       )}
     </Panel>
   );
 }
 
-function UnlockForm({ busy, onUnlock }: { busy: boolean; onUnlock: (pin: string) => Promise<void> }) {
+function UnlockForm({
+  busy,
+  onUnlock,
+}: {
+  busy: boolean;
+  onUnlock: (pin: string) => Promise<void>;
+}) {
   const [pin, setPin] = useState('');
   return (
     <form
@@ -488,7 +695,14 @@ function UnlockForm({ busy, onUnlock }: { busy: boolean; onUnlock: (pin: string)
     >
       <div className="min-w-56 flex-1">
         <Label htmlFor="pin-unlock">Enter your PIN to list passkeys</Label>
-        <input id="pin-unlock" type="password" autoComplete="current-password" className="field-input" value={pin} onChange={(e) => setPin(e.target.value)} />
+        <input
+          id="pin-unlock"
+          type="password"
+          autoComplete="current-password"
+          className="field-input"
+          value={pin}
+          onChange={(e) => setPin(e.target.value)}
+        />
       </div>
       <Button type="submit" variant="primary" disabled={!pin || busy}>
         <LockKeyOpen size={16} weight="bold" /> Unlock
@@ -522,14 +736,18 @@ function ConfirmDelete({
         e.preventDefault();
         onCancel();
       }}
-      className="m-auto w-[min(480px,calc(100vw-32px))] rounded-[16px] border border-line bg-panel-solid p-6 text-fg shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+      className="border-line bg-panel-solid text-fg m-auto w-[min(480px,calc(100vw-32px))] rounded-[16px] border p-6 shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm"
     >
       <h2 id="del-title" className="text-lg font-semibold">
         Delete this passkey?
       </h2>
-      <p className="mt-3 text-sm text-muted">
-        <span className="font-medium text-fg">{target.user || 'Unnamed account'}</span> on <span className="font-mono text-fg">{target.rp}</span>.
-        You will not be able to sign in to this account with this key any more. This cannot be undone.
+      <p className="text-muted mt-3 text-sm">
+        <span className="text-fg font-medium">
+          {target.user || 'Unnamed account'}
+        </span>{' '}
+        on <span className="text-fg font-mono">{target.rp}</span>. You will not
+        be able to sign in to this account with this key any more. This cannot
+        be undone.
       </p>
       <div className="mt-6 flex justify-end gap-2">
         <Button variant="ghost" onClick={onCancel}>

@@ -33,7 +33,10 @@ test('rescue APDUs match the firmware command table', () => {
   assert.equal(hex(APDU.readPhy()), '801E010000');
   assert.equal(hex(APDU.readFlashInfo()), '801E020000');
   assert.equal(hex(APDU.readSecureBoot()), '801E030000');
-  assert.equal(hex(APDU.writePhy(Uint8Array.of(0x06, 0x02, 0x00, 0x00))), '801C0100040602' + '0000');
+  assert.equal(
+    hex(APDU.writePhy(Uint8Array.of(0x06, 0x02, 0x00, 0x00))),
+    '801C0100040602' + '0000'
+  );
   assert.equal(hex(APDU.enableSecureBoot(0, false)), '801D0000');
   assert.equal(hex(APDU.enableSecureBoot(2, true)), '801D0201');
 });
@@ -42,12 +45,19 @@ test('CCID XfrBlock framing uses little-endian dwLength', () => {
   const apdu = new Uint8Array(300);
   const msg = buildCcid(CCID.PC_TO_RDR_XFR_BLOCK, 7, apdu);
   assert.equal(msg.length, 310);
-  assert.deepEqual(Array.from(msg.slice(0, 10)), [0x6f, 0x2c, 0x01, 0, 0, 0, 7, 0, 0, 0]);
+  assert.deepEqual(
+    Array.from(msg.slice(0, 10)),
+    [0x6f, 0x2c, 0x01, 0, 0, 0, 7, 0, 0, 0]
+  );
 });
 
 test('CCID response header parsing and status classes', () => {
   assert.equal(parseCcidHeader(new Uint8Array(9)), null);
-  const ok = must(parseCcidHeader(Uint8Array.of(0x80, 2, 0, 0, 0, 0, 3, 0x00, 0, 0, 0x90, 0x00)));
+  const ok = must(
+    parseCcidHeader(
+      Uint8Array.of(0x80, 2, 0, 0, 0, 0, 3, 0x00, 0, 0, 0x90, 0x00)
+    )
+  );
   assert.equal(ok.length, 2);
   assert.equal(ok.seq, 3);
   assert.equal(ok.totalLength, 12);
@@ -65,22 +75,59 @@ test('response APDU split', () => {
 });
 
 test('SELECT response (8.x layout with build number)', () => {
-  const data = Uint8Array.of(2, 2, 8, 0, 0x34, 0xb7, 0xda, 0x52, 0x95, 0x50, 0, 0, 0, 0, 0x01, 0x2c);
+  const data = Uint8Array.of(
+    2,
+    2,
+    8,
+    0,
+    0x34,
+    0xb7,
+    0xda,
+    0x52,
+    0x95,
+    0x50,
+    0,
+    0,
+    0,
+    0,
+    0x01,
+    0x2c
+  );
   const s = parseSelect(data);
   assert.equal(s.mcuName, 'ESP32-S3');
   assert.equal(s.productName, 'Pico FIDO');
   assert.equal(s.version, '8.0');
   assert.equal(s.serialHex, '34B7DA5295500000');
-  assert.equal(s.serialDecimal, ((0x34 & 0x03) << 24 | 0xb7 << 16 | 0xda << 8 | 0x52) >>> 0);
+  assert.equal(
+    s.serialDecimal,
+    (((0x34 & 0x03) << 24) | (0xb7 << 16) | (0xda << 8) | 0x52) >>> 0
+  );
   assert.equal(s.build, 300);
   assert.equal(parseSelect(data.slice(0, 12)).build, null); // 7.x layout
 });
 
 test('flash info and secure boot status', () => {
-  const f = parseFlashInfo(fromHex('00010000 00002000 00012000 0000000A 00400000'));
-  assert.deepEqual(f, { free: 0x10000, used: 0x2000, total: 0x12000, files: 10, chipSize: 0x400000, firmwareSize: null });
-  assert.deepEqual(parseSecureBoot(Uint8Array.of(1, 0, 0)), { enabled: true, locked: false, bootKey: 0 });
-  assert.deepEqual(parseSecureBoot(Uint8Array.of(0, 0, 0xff)), { enabled: false, locked: false, bootKey: null });
+  const f = parseFlashInfo(
+    fromHex('00010000 00002000 00012000 0000000A 00400000')
+  );
+  assert.deepEqual(f, {
+    free: 0x10000,
+    used: 0x2000,
+    total: 0x12000,
+    files: 10,
+    chipSize: 0x400000,
+    firmwareSize: null,
+  });
+  assert.deepEqual(parseSecureBoot(Uint8Array.of(1, 0, 0)), {
+    enabled: true,
+    locked: false,
+    bootKey: 0,
+  });
+  assert.deepEqual(parseSecureBoot(Uint8Array.of(0, 0, 0xff)), {
+    enabled: false,
+    locked: false,
+    bootKey: null,
+  });
 });
 
 // Record as firmware phy_serialize_data would emit it for the ESP32-S3-Zero setup.
@@ -95,7 +142,7 @@ const ZERO_RECORD = fromHex(
     '0A 04 0000008F', // curves
     '0B 01 1F', // all interfaces
     '0C 02 05 02', // NeoPixel, GRB
-  ].join(''),
+  ].join('')
 );
 
 test('PHY parse matches firmware field layout', () => {
@@ -151,7 +198,10 @@ test('validation rejects out-of-range values', () => {
   assert.ok(validatePhy({ ...emptyPhy(), usbItf: 0 }).length);
   assert.ok(validatePhy({ ...emptyPhy(), ledOrder: 1 }).length); // order without driver
   assert.ok(validatePhy({ ...emptyPhy(), ledDriver: 0x42 }).length);
-  assert.deepEqual(validatePhy({ ...emptyPhy(), usbProduct: 'x'.repeat(31) }), []);
+  assert.deepEqual(
+    validatePhy({ ...emptyPhy(), usbProduct: 'x'.repeat(31) }),
+    []
+  );
   assert.throws(() => serializePhy({ ...emptyPhy(), ledGpio: 300 }));
 });
 
@@ -168,7 +218,10 @@ test('GPIO safety rules for ESP32-S3', () => {
 
 test('review blocks dangerous writes and warns on lock-out risks', () => {
   const before = parsePhy(ZERO_RECORD).config;
-  assert.deepEqual(reviewPhy(before, before, MCU.ESP32S3), { errors: [], warnings: [] });
+  assert.deepEqual(reviewPhy(before, before, MCU.ESP32S3), {
+    errors: [],
+    warnings: [],
+  });
 
   const usbPin = { ...before, ledGpio: 20 };
   assert.ok(reviewPhy(before, usbPin, MCU.ESP32S3).errors.length);
@@ -177,14 +230,26 @@ test('review blocks dangerous writes and warns on lock-out risks', () => {
   assert.ok(reviewPhy(before, rpDriver, MCU.ESP32S3).errors.length);
 
   const noWeb = { ...before, usbItf: 0x1f & ~0x02 };
-  assert.match(reviewPhy(before, noWeb, MCU.ESP32S3).warnings.join(), /WebCCID/);
+  assert.match(
+    reviewPhy(before, noWeb, MCU.ESP32S3).warnings.join(),
+    /WebCCID/
+  );
 
   const newVid = { ...before, vid: 0x1234, pid: 0x5678 };
-  assert.match(reviewPhy(before, newVid, MCU.ESP32S3).warnings.join(), /VID\/PID/);
+  assert.match(
+    reviewPhy(before, newVid, MCU.ESP32S3).warnings.join(),
+    /VID\/PID/
+  );
 
   const noPress = { ...before, upBtn: null };
-  assert.match(reviewPhy(before, noPress, MCU.ESP32S3).warnings.join(), /BOOT-button/);
-  assert.deepEqual(reviewPhy(noPress, { ...noPress, upBtn: 0 }, MCU.ESP32S3).warnings, []);
+  assert.match(
+    reviewPhy(before, noPress, MCU.ESP32S3).warnings.join(),
+    /BOOT-button/
+  );
+  assert.deepEqual(
+    reviewPhy(noPress, { ...noPress, upBtn: 0 }, MCU.ESP32S3).warnings,
+    []
+  );
 });
 
 test('diff lists only changed fields', () => {

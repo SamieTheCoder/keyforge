@@ -37,7 +37,8 @@ function compareBytes(a: Uint8Array, b: Uint8Array) {
 
 function enc(v: CborValue, out: number[]): void {
   if (typeof v === 'number' || typeof v === 'bigint') {
-    if (typeof v === 'number' && !Number.isInteger(v)) throw new Error('CBOR: floats are not supported');
+    if (typeof v === 'number' && !Number.isInteger(v))
+      throw new Error('CBOR: floats are not supported');
     const b = BigInt(v);
     if (b >= 0n) head(0, b, out);
     else head(1, -1n - b, out);
@@ -54,7 +55,9 @@ function enc(v: CborValue, out: number[]): void {
     head(4, v.length, out);
     for (const x of v) enc(x, out);
   } else if (v instanceof Map) {
-    const entries = [...v.entries()].map(([k, val]) => [cborEncode(k), cborEncode(val)] as const);
+    const entries = [...v.entries()].map(
+      ([k, val]) => [cborEncode(k), cborEncode(val)] as const
+    );
     entries.sort((a, b) => compareBytes(a[0], b[0]));
     head(5, entries.length, out);
     for (const [k, val] of entries) {
@@ -93,7 +96,8 @@ function dec(b: Uint8Array, p: number): [CborValue, number] {
   } else throw new Error('CBOR: indefinite lengths are not supported');
 
   const small = () => {
-    if (n > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error('CBOR: length too large');
+    if (n > BigInt(Number.MAX_SAFE_INTEGER))
+      throw new Error('CBOR: length too large');
     return Number(n);
   };
   switch (major) {
@@ -145,7 +149,10 @@ export function cborDecode(bytes: Uint8Array): CborValue {
 
 /** Typed accessors for decoded CTAP maps. */
 export const get = {
-  map: (m: CborValue | undefined, k: CborValue): Map<CborValue, CborValue> | undefined => {
+  map: (
+    m: CborValue | undefined,
+    k: CborValue
+  ): Map<CborValue, CborValue> | undefined => {
     const v = m instanceof Map ? m.get(k) : undefined;
     return v instanceof Map ? v : undefined;
   },
