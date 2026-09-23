@@ -1,0 +1,40 @@
+name: Board support
+description: Ask for a board to be supported, or share a working LED / pin setup.
+labels: [board-support]
+body:
+  - type: input
+    id: board
+    attributes:
+      label: Board
+      description: Exact name, and a link to the product page or pinout.
+    validations:
+      required: true
+  - type: dropdown
+    id: chip
+    attributes:
+      label: Chip
+      options: [ESP32-S3, ESP32-S2, RP2350, RP2040, Other]
+    validations:
+      required: true
+  - type: input
+    id: led
+    attributes:
+      label: LED
+      placeholder: WS2812 on GPIO 16, or single LED on GPIO 25
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      options: [Works with these settings, Flashes but LED is wrong, Does not flash, Not tried yet]
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where to buy (optional)
+      description: Helps others find affordable boards, in India and elsewhere.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes and log
+      render: text

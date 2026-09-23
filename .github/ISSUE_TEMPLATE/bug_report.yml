@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in the website or firmware does not work.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting. Never paste your PIN, recovery codes or full passkey details.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Flash, Configure, Passkeys, Monitor, Firmware build, Website (other)]
+    validations:
+      required: true
+  - type: input
+    id: board
+    attributes:
+      label: Board and chip
+      placeholder: Waveshare ESP32-S3-Zero (ESP32-S3)
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware version
+      placeholder: Keyforge 8.0-kf1, or the release file name
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Chrome 140 on Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Activity log
+      description: Click Copy under Activity (tick Show APDUs if the problem is on Configure or Passkeys) and paste it here.
+      render: text
