@@ -4,7 +4,7 @@
 
 ### ₹500 का बोर्ड, एक ब्राउज़र टैब, और आपकी अपनी FIDO2 सिक्योरिटी की।
 
-[English](README.md) · [keyzforge.tech](https://keyzforge.tech) · [योगदान करें](CONTRIBUTING.md)
+[English](README.md) · [keyzforge.xyz](https://keyzforge.xyz) · [योगदान करें](CONTRIBUTING.md)
 
 </div>
 
@@ -42,7 +42,7 @@ Keyzforge एक ओपन-सोर्स प्रोजेक्ट है �
 
 ## शुरू कैसे करें
 
-1. [keyzforge.tech/flash](https://keyzforge.tech/flash) खोलें।
+1. [keyzforge.xyz/flash](https://keyzforge.xyz/flash) खोलें।
 2. बोर्ड का **BOOT** बटन दबाकर उसे USB में लगाएँ।
 3. अपनी चिप चुनें, **Keyzforge firmware** चुनें, और **Flash firmware** दबाएँ।
 4. **Configure** में LED सेट करें, फिर **Passkeys** में PIN सेट करें।

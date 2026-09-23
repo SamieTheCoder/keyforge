@@ -55,6 +55,36 @@ CI runs the same steps, and builds every firmware target when `firmware/` change
   `git -C firmware/pico-fido diff > firmware/patches/NNNN-short-name.patch`, revert the submodule, and commit the patch.
 - **Commit messages** in the imperative: "Add Waveshare RP2040-Zero LED preset", not "added preset".
 
+## Dated history
+
+This repo keeps a readable, backdated history: commits are ordered oldest to newest with `GIT_AUTHOR_DATE` and
+`GIT_COMMITTER_DATE` set on each commit. GitHub's contribution graph and commit list read the committer date, so set
+both. New work lands on the latest date only.
+
+```sh
+git bundle create backup.bundle --all   # back up the remote first; history rewrites are destructive
+git checkout --orphan history
+git rm -r --cached .
+
+commit_at() {   # commit_at "<date>" "<message>" <files...>
+  local d="$1" m="$2"; shift 2
+  git add -- "$@"
+  GIT_AUTHOR_DATE="$d" GIT_COMMITTER_DATE="$d" git commit -m "$m"
+}
+
+commit_at "2026-09-23T18:40:00+0530" "Docs and README" README.md docs
+# ...dates must strictly increase, or the graph looks wrong
+
+git branch -M history main
+git push --force origin main
+```
+
+To fix dates on commits that already exist without rebuilding history:
+
+```sh
+git rebase -i --committer-date-is-author-date --root
+```
+
 ## Style
 
 - TypeScript strict, Prettier (single quotes, 2 spaces), ESLint flat config. `npm run format` fixes most of it.

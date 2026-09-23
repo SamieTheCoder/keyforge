@@ -1,9 +1,12 @@
 # Builds Keyforge firmware from firmware/ (pinned pico-fido submodule + firmware/patches)
 # with the same Docker image anyone can use locally (firmware/Dockerfile).
 #
+# When it runs: only pushes and pull requests that touch firmware/ or this file
+# (the paths: filter below). Site-only commits in src/, docs or public/ skip
+# this workflow entirely.
 #  - Pushes and pull requests that touch firmware/ build every board and upload artifacts.
 #  - "Run workflow" with publish = true also creates the GitHub release fw-<version>,
-#    which keyforge.tech lists as "Keyforge builds".
+#    which keyzforge.xyz lists as "Keyforge builds".
 #
 # Builds are not signed with the PicoKeys release key (see firmware/NOTICE.md).
 

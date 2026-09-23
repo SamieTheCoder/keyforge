@@ -6,21 +6,44 @@ import { THEME_SCRIPT } from '@/components/theme-toggle';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://keyzforge.tech'),
+  metadataBase: new URL('https://keyzforge.xyz'),
   title: {
-    default: 'Keyzforge: open-source FIDO2 security keys you build yourself',
+    default: 'Keyzforge: build your own FIDO2 security key',
     template: '%s | Keyzforge',
   },
   description:
     'Flash, configure and monitor open-source FIDO2 security keys on ESP32-S3, RP2040 and RP2350, straight from the browser.',
   applicationName: 'Keyzforge',
+  robots: { index: true, follow: true },
+  icons: {
+    icon: [
+      { url: '/brand/keyforge-icon.svg', type: 'image/svg+xml' },
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+  },
   openGraph: {
     title: 'Keyzforge',
     description:
       'Flash, configure and monitor open-source FIDO2 security keys from the browser.',
-    url: 'https://keyzforge.tech',
+    url: 'https://keyzforge.xyz',
     siteName: 'Keyzforge',
     type: 'website',
+    images: [
+      {
+        url: '/og/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'Keyzforge: open-source FIDO2 security keys you build yourself',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Keyzforge',
+    description:
+      'Flash, configure and monitor open-source FIDO2 security keys from the browser.',
+    images: ['/og/og-default.png'],
   },
 };
 

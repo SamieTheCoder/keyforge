@@ -40,7 +40,7 @@ for RP boards, then run `firmware/build.sh <board>`.
 | any pico-sdk board, e.g. `waveshare_rp2040_zero`, `adafruit_qtpy_rp2040` | UF2 for that board's pinout and flash size |
 | `esp32s3`, `esp32s2` | merged image, flash at 0x0 |
 
-Flash the result at [keyzforge.tech/flash](https://keyzforge.tech/flash) with "Or use a local file".
+Flash the result at [keyzforge.xyz/flash](https://keyzforge.xyz/flash) with "Or use a local file".
 
 ## Customise it
 
@@ -93,9 +93,11 @@ git -C firmware/pico-fido apply --check ../patches/*.patch   # fix any patch tha
 
 ## Releases
 
-`.github/workflows/firmware.yml` builds every board on each change to `firmware/`. Running it by hand with
-**publish** ticked creates the release `fw-<VERSION>` with the binaries, `SHA256SUMS`, `NOTICE.md` and the complete
-source tarball. Keyzforge's flasher lists those releases as **Keyzforge builds**.
+`.github/workflows/firmware.yml` builds every board when a push or pull request touches `firmware/` (or the workflow
+file itself). That path filter is why the workflow runs on some commits and skips others: site-only changes in `src/`
+or docs never trigger a firmware build. Running it by hand with **publish** ticked creates the release `fw-<VERSION>`
+with the binaries, `SHA256SUMS`, `NOTICE.md` and the complete source tarball. Keyzforge's flasher lists those releases
+as **Keyzforge builds**.
 
 ## License
 

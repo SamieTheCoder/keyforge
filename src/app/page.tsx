@@ -16,10 +16,33 @@ import {
   Patch,
 } from '@lucasmarkes/hairline/react';
 import Link from 'next/link';
+import { JsonLd } from '@/components/json-ld';
 import { KeyMark } from '@/components/logo';
 import { buttonClass } from '@/components/ui';
+import { pageMetadata, siteJsonLd, webPageJsonLd } from '@/lib/page-seo';
 import { SITE } from '@/lib/site';
 import { cn } from '@/lib/utils';
+
+const DESCRIPTION =
+  'Flash, configure and monitor open-source FIDO2 security keys on ESP32-S3, RP2040 and RP2350, straight from the browser. Free and open-source.';
+
+export const metadata = pageMetadata({
+  path: '/',
+  title: 'Home',
+  absoluteTitle: 'Keyzforge: build your own FIDO2 security key',
+  description: DESCRIPTION,
+  imageAlt: 'Keyzforge: open-source FIDO2 security keys you build yourself',
+});
+
+const JSON_LD = webPageJsonLd({
+  path: '/',
+  name: 'Keyzforge: build your own FIDO2 security key',
+  description: DESCRIPTION,
+  datePublished: '2026-09-19',
+  dateModified: '2026-10-05',
+  crumb: 'Home',
+  extra: siteJsonLd(),
+});
 
 const BOARDS = [
   {
@@ -47,6 +70,7 @@ const BOARDS = [
 export default function Home() {
   return (
     <>
+      <JsonLd data={JSON_LD} />
       {/* Hero: split, copy left, mark right */}
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 pt-14 pb-20 sm:px-6 md:pt-20 lg:grid-cols-[1.15fr_0.85fr]">
         <div>

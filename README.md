@@ -10,7 +10,7 @@
 Flash, configure and manage open-source FIDO2 keys on ESP32 and Raspberry Pi boards,
 with firmware built in the open by GitHub Actions. Made in India 🇮🇳, for everyone.
 
-[**keyzforge.tech**](https://keyzforge.tech) · [How it works](https://keyzforge.tech/how-it-works) · [Build your own firmware](firmware/README.md) · [Contribute](CONTRIBUTING.md) · [हिन्दी](README.hi.md)
+[**keyzforge.xyz**](https://keyzforge.xyz) · [How it works](https://keyzforge.xyz/how-it-works) · [Build your own firmware](firmware/README.md) · [Contribute](CONTRIBUTING.md) · [हिन्दी](README.hi.md)
 
 [![CI](https://github.com/SamieTheCoder/keyzforge/actions/workflows/ci.yml/badge.svg)](https://github.com/SamieTheCoder/keyzforge/actions/workflows/ci.yml)
 [![Firmware](https://github.com/SamieTheCoder/keyzforge/actions/workflows/firmware.yml/badge.svg)](https://github.com/SamieTheCoder/keyzforge/actions/workflows/firmware.yml)
@@ -75,7 +75,7 @@ Chrome, Edge or another Chromium browser on desktop. Firefox and Safari do not s
 ## How it works
 
 ```
- ┌──────────────── browser tab (keyzforge.tech) ───────────────┐
+ ┌──────────────── browser tab (keyzforge.xyz) ───────────────┐
  │  Flasher        Configurator      Passkeys        Monitor  │
  │  esptool-js     rescue applet     CTAP2 over      line     │
  │  PICOBOOT       PHY record        CCID applet     parser   │
@@ -96,7 +96,7 @@ Chrome, Edge or another Chromium browser on desktop. Firefox and Safari do not s
 - **Strict headers:** enforced CSP (`connect-src 'self' https://api.github.com`), `Permissions-Policy: usb=(self), serial=(self)`,
   HSTS. No analytics, no cookies.
 
-The [How it works](https://keyzforge.tech/how-it-works) page walks through each part with interactive drawings.
+The [How it works](https://keyzforge.xyz/how-it-works) page walks through each part with interactive drawings.
 
 <img src="docs/screenshots/how-it-works-dark.png" alt="How it works page" width="860">
 

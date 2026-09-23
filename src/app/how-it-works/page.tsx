@@ -8,17 +8,33 @@ import {
   Terminal,
   Vault,
 } from '@lucasmarkes/hairline/react';
-import type { Metadata } from 'next';
 import Link from 'next/link';
+import { JsonLd } from '@/components/json-ld';
 import { buttonClass } from '@/components/ui';
+import { pageMetadata, siteJsonLd, webPageJsonLd } from '@/lib/page-seo';
 import { SITE } from '@/lib/site';
 import { cn } from '@/lib/utils';
 
-export const metadata: Metadata = {
+const DESCRIPTION =
+  'How Keyzforge flashes, configures and manages open-source FIDO2 security keys from the browser, and how the firmware is built in public.';
+
+export const metadata = pageMetadata({
+  path: '/how-it-works',
   title: 'How it works',
-  description:
-    'How Keyzforge flashes, configures and manages Keyzforge security keys from the browser, and how the firmware is built.',
-};
+  description: DESCRIPTION,
+  image: '/og/og-how-it-works.png',
+  imageAlt: 'How Keyzforge firmware and browser tooling work, in the open',
+});
+
+const JSON_LD = webPageJsonLd({
+  path: '/how-it-works',
+  name: 'How it works | Keyzforge',
+  description: DESCRIPTION,
+  datePublished: '2026-09-19',
+  dateModified: '2026-10-05',
+  crumb: 'How it works',
+  extra: siteJsonLd(),
+});
 
 type Step = {
   id: string;
@@ -207,6 +223,7 @@ const STEPS: Step[] = [
 export default function HowItWorksPage() {
   return (
     <>
+      <JsonLd data={JSON_LD} />
       <section className="mx-auto max-w-3xl px-4 pt-14 pb-10 text-center sm:px-6 md:pt-20">
         <p className="text-accent text-sm font-medium">How it works</p>
         <h1 className="mt-3 text-4xl leading-[1.05] font-semibold tracking-[-0.035em] sm:text-5xl">

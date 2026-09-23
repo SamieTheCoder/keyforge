@@ -25,7 +25,7 @@ Firmware issues that also exist in the unpatched upstream code base are still we
 
 | Component | Supported |
 | --- | --- |
-| Website (keyzforge.tech) | latest `main` |
+| Website (keyzforge.xyz) | latest `main` |
 | Firmware | latest `fw-*` release |
 
 ## Verifying a firmware release

@@ -1,16 +1,33 @@
-import type { Metadata } from 'next';
+import { JsonLd } from '@/components/json-ld';
+import { pageMetadata, siteJsonLd, webPageJsonLd } from '@/lib/page-seo';
 import { SITE } from '@/lib/site';
 
-export const metadata: Metadata = {
+const DESCRIPTION =
+  'Keyzforge has no accounts, no analytics, no cookies and no tracking. What stays on your device and what the network sees.';
+
+export const metadata = pageMetadata({
+  path: '/privacy',
   title: 'Privacy',
-  description: 'What Keyzforge does and does not collect.',
-};
+  description: DESCRIPTION,
+  robots: { index: false, follow: false },
+});
 
 const UPDATED = '3 October 2026';
+
+const JSON_LD = webPageJsonLd({
+  path: '/privacy',
+  name: 'Privacy | Keyzforge',
+  description: DESCRIPTION,
+  datePublished: '2026-09-19',
+  dateModified: '2026-10-03',
+  crumb: 'Privacy',
+  extra: siteJsonLd(),
+});
 
 export default function PrivacyPage() {
   return (
     <article className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      <JsonLd data={JSON_LD} />
       <h1 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
         Privacy
       </h1>

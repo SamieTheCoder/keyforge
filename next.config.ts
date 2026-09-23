@@ -54,7 +54,22 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   async headers() {
-    return [{ source: '/:path*', headers: [...SECURITY_HEADERS] }];
+    return [
+      { source: '/:path*', headers: [...SECURITY_HEADERS] },
+      // Crawler directives as HTTP headers (meta robots tags are also set
+      // per page; the most restrictive value wins). The /privacy rule is
+      // last so it wins over the generic rule where both match.
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'index, follow, max-image-preview:large' },
+        ],
+      },
+      {
+        source: '/privacy',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+    ];
   },
 };
 

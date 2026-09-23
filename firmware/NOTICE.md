@@ -9,7 +9,7 @@ Keyzforge firmware @VERSION@, built by GitHub Actions from this repository's `fi
 | `keyforge-fido_pico-@VERSION@.uf2` | RP2040 (Raspberry Pi Pico and compatibles) |
 | `keyforge-fido_pico2-@VERSION@.uf2` | RP2350 (Raspberry Pi Pico 2 and compatibles) |
 
-Check downloads against `SHA256SUMS`, then flash them in the browser at https://keyzforge.tech/flash.
+Check downloads against `SHA256SUMS`, then flash them in the browser at https://keyzforge.xyz/flash.
 
 **Secure boot.** These builds are not signed with the PicoKeys release key. They run normally, but do not
 enable secure boot on a key running them: it burns the PicoKeys key into the chip and these builds would stop

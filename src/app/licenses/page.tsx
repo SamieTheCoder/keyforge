@@ -1,10 +1,15 @@
-import type { Metadata } from 'next';
+import { JsonLd } from '@/components/json-ld';
+import { pageMetadata, siteJsonLd, webPageJsonLd } from '@/lib/page-seo';
 import { SITE } from '@/lib/site';
 
-export const metadata: Metadata = {
+const DESCRIPTION =
+  'Keyzforge is free software under the GNU AGPL-3.0, built on open-source projects. Every license and upstream source, listed.';
+
+export const metadata = pageMetadata({
+  path: '/licenses',
   title: 'Licenses',
-  description: 'Keyzforge is free software, built on open source.',
-};
+  description: DESCRIPTION,
+});
 
 // Kept short. AGPL / MIT only require that the notices travel with the software, not long blurbs.
 const BUILT_ON = [
@@ -36,9 +41,20 @@ const BUILT_ON = [
   },
 ];
 
+const JSON_LD = webPageJsonLd({
+  path: '/licenses',
+  name: 'Licenses | Keyzforge',
+  description: DESCRIPTION,
+  datePublished: '2026-09-23',
+  dateModified: '2026-10-05',
+  crumb: 'Licenses',
+  extra: siteJsonLd(),
+});
+
 export default function LicensesPage() {
   return (
     <article className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
+      <JsonLd data={JSON_LD} />
       <h1 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
         Licenses
       </h1>
