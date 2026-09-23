@@ -1,17 +1,22 @@
 # Keyforge firmware
 
-The firmware Keyforge ships is [pico-fido](https://github.com/polhenarejos/pico-fido) by Pol Henarejos, built in the
-open from this directory. Nothing is hidden: the exact source, the patches, the toolchain image and the CI that
-publishes each release all live here. Fork it and build your own key.
+The FIDO2 firmware that runs on every Keyforge key, built in the open from this directory. Nothing is hidden: the exact
+source, the patches, the toolchain image and the CI that publishes each release all live here. Fork it and build your own key.
+
+It is based on the open-source [pico-fido](https://github.com/polhenarejos/pico-fido) code base by Pol Henarejos (AGPL-3.0),
+pinned as a submodule, with Keyforge changes kept as small, reviewable patches.
 
 ```
 firmware/
 ├── pico-fido/      upstream source, pinned git submodule (v8.0, includes pico-keys-sdk)
 ├── patches/        Keyforge changes, applied in order at build time
+│   ├── 0001-build-time-config-header.patch   build options (passkey slots, ...)
+│   └── 0002-usb-strings-keyforge.patch       USB name: Keyforge / Keyforge Key
 ├── build.sh        one script for every board, used by CI and by you
 ├── Dockerfile      ESP-IDF 5.5.1 + Arm GCC + pico-sdk 2.1.1 + picotool
 ├── VERSION         label for release file names
-└── NOTICE.md       release notes and license text attached to every release
+├── NOTICE.md       release notes and license text attached to every release
+└── ARCHITECTURE.md map of the firmware code: where to change what
 ```
 
 ## Build it
@@ -81,8 +86,9 @@ git -C firmware/pico-fido apply --check ../patches/*.patch   # fix any patch tha
 - **Secure boot.** "Enable secure boot" in Keyforge burns the PicoKeys release key. After that only PicoKeys-signed
   firmware boots, so your build would not. On RP2350 you can sign with your own key via `SECURE_BOOT_PKEY`, but
   Keyforge does not burn custom keys; use `picotool otp` for that, and only when you understand it is permanent.
-- **USB IDs.** Builds keep pico-fido's USB ID (2E8A:10FE). Upstream's `pico-fido-patch-vidpid.sh` changes it on a
-  built image. Use an ID you are allowed to use (for example a free one from pid.codes).
+- **USB IDs.** Builds report as **Keyforge Key** by Keyforge, but keep the upstream USB ID (2E8A:10FE) so existing tools
+  and drivers keep working. `pico-fido/pico-fido-patch-vidpid.sh` changes it on a built image. Use an ID you are allowed
+  to use (for example a free one from pid.codes).
 - **Passkeys survive** reflashing the same firmware family, but always keep another way into your accounts.
 
 ## Releases

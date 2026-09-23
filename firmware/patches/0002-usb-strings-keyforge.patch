@@ -1,0 +1,15 @@
+diff --git a/pico-keys-sdk/src/usb/usb_descriptors.c b/pico-keys-sdk/src/usb/usb_descriptors.c
+index 4282295..04a546c 100644
+--- a/pico-keys-sdk/src/usb/usb_descriptors.c
++++ b/pico-keys-sdk/src/usb/usb_descriptors.c
+@@ -347,8 +347,8 @@ uint8_t const *tud_descriptor_bos_cb(void) {
+ char *string_desc_itf[5] = {0};
+ char const *string_desc_arr [] = {
+     (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
+-    "Pol Henarejos",                     // 1: Manufacturer
+-    "Pico Key",                       // 2: Product
++    "Keyforge",                         // 1: Manufacturer
++    "Keyforge Key",                       // 2: Product (rename per key in Configure)
+     "11223344",                      // 3: Serials, should use chip ID
+     "Config",               // 4: Vendor Interface
+     "MAC"                   // 5: MAC address string, handled separately
