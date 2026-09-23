@@ -25,7 +25,7 @@ Look for issues labelled `good first issue` or `help wanted`, or open one to dis
 ## Set up
 
 ```sh
-git clone --recursive https://github.com/SamieTheCoder/keyforge
+git clone --recursive https://github.com/SamieTheCoder/keyzforge
 cd keyforge
 npm ci
 npm run dev          # http://localhost:3000 (WebUSB and Web Serial work on localhost)

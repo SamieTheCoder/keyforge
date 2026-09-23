@@ -12,8 +12,8 @@ with firmware built in the open by GitHub Actions. Made in India 🇮🇳, for e
 
 [**keyzforge.tech**](https://keyzforge.tech) · [How it works](https://keyzforge.tech/how-it-works) · [Build your own firmware](firmware/README.md) · [Contribute](CONTRIBUTING.md) · [हिन्दी](README.hi.md)
 
-[![CI](https://github.com/SamieTheCoder/keyforge/actions/workflows/ci.yml/badge.svg)](https://github.com/SamieTheCoder/keyforge/actions/workflows/ci.yml)
-[![Firmware](https://github.com/SamieTheCoder/keyforge/actions/workflows/firmware.yml/badge.svg)](https://github.com/SamieTheCoder/keyforge/actions/workflows/firmware.yml)
+[![CI](https://github.com/SamieTheCoder/keyzforge/actions/workflows/ci.yml/badge.svg)](https://github.com/SamieTheCoder/keyzforge/actions/workflows/ci.yml)
+[![Firmware](https://github.com/SamieTheCoder/keyzforge/actions/workflows/firmware.yml/badge.svg)](https://github.com/SamieTheCoder/keyzforge/actions/workflows/firmware.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-0d7377)](LICENSE)
 
 <img src="docs/screenshots/home-dark.png" alt="Keyzforge home page" width="860">
@@ -112,7 +112,7 @@ firmware/
 ```
 
 ```sh
-git clone --recursive https://github.com/SamieTheCoder/keyforge && cd keyforge
+git clone --recursive https://github.com/SamieTheCoder/keyzforge && cd keyforge
 docker build -t keyforge-fw firmware
 docker run --rm -v "$PWD:/src" -w /src -e MAX_RESIDENT_CREDENTIALS=64 \
   keyforge-fw firmware/build.sh pico2 esp32s3
@@ -161,17 +161,12 @@ Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Security
 
-Found something? Report it privately through [GitHub security advisories](https://github.com/SamieTheCoder/keyforge/security/advisories/new),
+Found something? Report it privately through [GitHub security advisories](https://github.com/SamieTheCoder/keyzforge/security/advisories/new),
 not as a public issue. Details in [SECURITY.md](SECURITY.md).
 
-## Credits and license
+## License
 
-- [pico-fido](https://github.com/polhenarejos/pico-fido) and pico-keys-sdk by Pol Henarejos (AGPL-3.0): the firmware code base.
-- [picoflash](https://github.com/piersfinlayson/picoflash) by Piers Finlayson (MIT): PICOBOOT approach.
-- [esptool-js](https://github.com/espressif/esptool-js) by Espressif (Apache-2.0).
-- [hairline](https://github.com/lucasmarkes/hairline) by Lucas Marques (MIT): the line drawings.
-- [Phosphor Icons](https://phosphoricons.com) (MIT), [Geist](https://vercel.com/font) (OFL).
+Keyzforge is free software under the [GNU AGPL-3.0](LICENSE). Built on open source; full credits and licenses are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-Keyzforge is free software under the [GNU AGPL-3.0](LICENSE). Details in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-Keyzforge is an independent project. Not affiliated with or endorsed by PicoKeys, Espressif, Raspberry Pi or the FIDO Alliance.
+Independent project, not affiliated with or endorsed by Espressif, Raspberry Pi or the FIDO Alliance.

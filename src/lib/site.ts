@@ -2,9 +2,9 @@
 export const SITE = {
   name: 'Keyzforge',
   url: 'https://keyzforge.tech',
-  repoUrl: 'https://github.com/SamieTheCoder/keyforge',
+  repoUrl: 'https://github.com/SamieTheCoder/keyzforge',
   /** owner/name of the repo whose GitHub Actions publish Keyzforge firmware releases (usually this repo). */
-  firmwareRepo: 'SamieTheCoder/keyforge',
+  firmwareRepo: 'SamieTheCoder/keyzforge',
   /** Matches firmware/VERSION. */
   firmwareVersion: '8.0-kf1',
   contactEmail: 'privacy@keyzforge.tech',

@@ -24,7 +24,7 @@ firmware/
 You need Docker, or Linux/macOS/WSL with the toolchains below.
 
 ```sh
-git clone --recursive https://github.com/SamieTheCoder/keyforge
+git clone --recursive https://github.com/SamieTheCoder/keyzforge
 cd keyforge
 docker build -t keyforge-fw firmware
 docker run --rm -v "$PWD:/src" -w /src keyforge-fw firmware/build.sh pico pico2 esp32s3 esp32s2

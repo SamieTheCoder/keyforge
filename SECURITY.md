@@ -5,7 +5,7 @@ Keyzforge handles security keys, so we take reports seriously.
 ## Report a vulnerability
 
 Please **do not open a public issue**. Report privately through GitHub:
-[Security → Report a vulnerability](https://github.com/SamieTheCoder/keyforge/security/advisories/new).
+[Security → Report a vulnerability](https://github.com/SamieTheCoder/keyzforge/security/advisories/new).
 
 Include what you found, how to reproduce it, and the impact you expect. You will get an answer within 7 days. We will agree a
 fix and disclosure date with you and credit you in the advisory unless you prefer otherwise.
