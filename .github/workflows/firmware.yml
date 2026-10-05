@@ -55,7 +55,7 @@ jobs:
               firmware/NOTICE.md > firmware/dist/NOTICE.md
           (cd firmware/dist && sha256sum keyforge-fido_* keyforge-fido-*-source.tar.gz > SHA256SUMS && cat SHA256SUMS)
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: keyforge-firmware
           path: firmware/dist/*
